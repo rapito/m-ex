@@ -1,2 +1,2 @@
-gecko assemble -o codes.gct
+gecko assemble -o codes.ini
 pause
