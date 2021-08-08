@@ -2,7 +2,7 @@
 #include "../slippi.h";
 
 #define CHAT_MESSAGE_SET_LENGTH 10				// Max Messages allowed to be shown
-#define CHAT_MAX_PLAYER_MESSAGES 10				// Max Messagees allowed per player
+#define CHAT_MAX_PLAYER_MESSAGES 4				// Max Messagees allowed per player
 int ChatMessagesSet[CHAT_MESSAGE_SET_LENGTH]; 	// Max mesages allowed
 int ChatMessagesLocalCount = 0;
 int ChatMessagesRemoteCount = 0;
