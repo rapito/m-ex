@@ -26,6 +26,8 @@ typedef struct ChatInput {
 } ChatInput;
 
 /** functions **/
+void FreeChat(void* ptr);
+void FreeChatWindow(void* ptr);
 void ListenForChatInput();
 void UpdateChat();
 void UpdateChatWindow(GOBJ* gobj);

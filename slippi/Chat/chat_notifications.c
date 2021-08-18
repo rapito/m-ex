@@ -1,9 +1,9 @@
 #ifndef SLIPPI_CORE_CHAT_NOTIFICATION_C
 #define SLIPPI_CORE_CHAT_NOTIFICATION_C
-#include "../../common.h"
+#include "../common.h"
 #include "chat_notifications.h"
-#include "notifications.c"
-#include "../../CSS/chat/text.c"
+#include "../Core/Notifications/notifications.c"
+#include "text.c"
 
 int ChatMessagesLocalCount = 0;
 int ChatMessagesRemoteCount = 0;
@@ -79,6 +79,13 @@ void CreateAndAddChatMessage(SlpCSSDesc* slpCss, MatchStateResponseBuffer* msrb,
 	}
 }
 
+typedef struct packed(stc_txtcanvas_gx) {
+    u8 gx_link;
+    u8 gx_pri;
+} stc_txtcanvas_gx;
+
+stc_txtcanvas_gx *stc_textcanvas_first_gx = (R13 + (-0x3d24) + 0xE);
+
 Text* CreateChatMessageText(NotificationMessage* msg){
 	SlippiCSSDataTable* dt = SLIPPI_CSS_DATA_REF->dt;
 	
@@ -87,9 +94,11 @@ Text* CreateChatMessageText(NotificationMessage* msg){
 	// msg->text = text;
 	// stc_textcanvas_first[0]->gxlink = 1; // restore
 
-	Text* text = Text_CreateText(0, 0);
-	text->gobj->gx_link = 1;
-	text->gobj->gx_pri = 127;
+	OSReport("0x%x 0x%x 0x%x\n", stc_textcanvas_first, stc_textcanvas_first[0], (u8*)stc_textcanvas_first[0]+(u8)0xE);
+	Text* text = Text_CreateTextWithGX(0, 0, 3, 129);
+
+//	text->gobj->gx_link = 3;
+//	text->gobj->gx_pri = 129;
 	text->kerning = 1;
 	text->align = 0;
 	text->trans.Z = 5.0f;

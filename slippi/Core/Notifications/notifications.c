@@ -1,12 +1,14 @@
 #ifndef SLIPPI_CORE_NOTIFICATION_C
 #define SLIPPI_CORE_NOTIFICATION_C
 #include "notifications.h"
-#include "chat_notifications.c"
+#include "../../Chat/chat_notifications.c"
 
 GOBJ* _notificationsGOBJ = NULL;
+int LastNotificationMessageID = -1; // Initial Notification Message ID to always add to the bottom of the list
 
 void FreeNotifications(void* ptr){
 	_notificationsGOBJ = NULL;
+	LastNotificationMessageID = -1;
 }
 
 void InitNotifications(){
@@ -57,7 +59,7 @@ void CreateAndAddNotificationMessage(SlpCSSDesc* slpCss, NotificationMessage* me
 
 	GObj_AddUserData(gobj, 0x4, HSD_Free, message);
 	GObj_AddObject(gobj, 0x4, jobj);
-	GObj_AddGXLink(gobj, GXLink_Common, 1, 128);
+	GObj_AddGXLink(gobj, GXLink_Common, 3, 129);
 	GObj_AddProc(gobj, UpdateNotificationMessage, 0x4);
 }
 
@@ -106,8 +108,12 @@ void UpdateNotificationMessage(GOBJ* gobj){
 		} else {
 			ChatMessagesRemoteCount--;
 		}
+
 		OSReport("Deleted Message with ID: %i\n", msg->id);
 		GObj_Destroy(gobj);
+		// If there's no message after this one, restart LastNotificationMessageID
+		for(int i=0;i<NOTIFICATION_MESSAGE_SET_LENGTH;i++) if(NotificationMessagesSet[i]) return;
+		LastNotificationMessageID = -1;
 		break;
 	default:
 		break;
@@ -119,13 +125,23 @@ void UpdateNotificationMessage(GOBJ* gobj){
  * Finds next available notification message id
  */
 int GetNextNotificationMessageID(){
-	for(int i=0;i<NOTIFICATION_MESSAGE_SET_LENGTH;i++){
-		if(!NotificationMessagesSet[i]){
-			NotificationMessagesSet[i] = true;
-			OSReport("GetNextNotificationMessageID: %i\n", i);
-			return i;
-		}
-	}
+    int i = LastNotificationMessageID+1;
+    if(i < NOTIFICATION_MESSAGE_SET_LENGTH){
+        if(!NotificationMessagesSet[i]) {
+            NotificationMessagesSet[i] = true;
+            OSReport("GetNextNotificationMessageID: %i\n", i);
+            return LastNotificationMessageID = i;
+        }
+    } else {
+        for(int i=0;i<NOTIFICATION_MESSAGE_SET_LENGTH;i++){
+            if(!NotificationMessagesSet[i]){
+                NotificationMessagesSet[i] = true;
+                OSReport("GetNextNotificationMessageID: %i\n", i);
+                return LastNotificationMessageID = i;
+            }
+        }
+    }
+
 	return -1;
 }
 

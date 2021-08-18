@@ -3,9 +3,9 @@
 #include "chat.h"
 #include "text.c"
 
-#include "../../common.h"
-#include "../../Core/Notifications/notifications.c"
-#include "../../Core/Notifications/chat_notifications.h"
+#include "../common.h"
+#include "../Core/Notifications/notifications.c"
+#include "chat_notifications.h"
 
 #define CHAT_WINDOW_FRAMES 60*2.5           // 4 seconds at 60fps
 #define CHAT_ALLOW_COMMAND_FRAMES 60*0.2    // 1.5 seconds at 60fps
@@ -17,9 +17,7 @@ GOBJ* _chatWindowGOBJ = NULL;
 void FreeChat(void* ptr){
 	_chatMainGOBJ = NULL;
     if(ptr) HSD_Free(ptr);
-
 }
-
 
 void FreeChatWindow(void* ptr){
 	_chatWindowGOBJ = NULL;

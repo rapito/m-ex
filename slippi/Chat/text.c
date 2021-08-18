@@ -1,6 +1,6 @@
 #ifndef SLIPPI_CSS_CHAT_TEXT_C
 #define SLIPPI_CSS_CHAT_TEXT_C
-#include "../../slippi.h"
+#include "../slippi.h"
 #include "text.h"
 
 char * GetChatText(int groupId, int messageId, bool useMessageIndex){

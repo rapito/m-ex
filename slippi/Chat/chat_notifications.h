@@ -1,7 +1,7 @@
 #ifndef SLIPPI_CORE_CHAT_NOTIFICATION_H
 #define SLIPPI_CORE_CHAT_NOTIFICATION_H
-#include "../../slippi.h"
-#include "notifications.h"
+#include "../slippi.h"
+#include "../Core/Notifications/notifications.h"
 
 #define CHAT_SOUND_NEW_MESSAGE 0xb7		// Global Sound ID
 #define CHAT_SOUND_BLOCK_MESSAGE 0x3 	// Common Sound
@@ -15,12 +15,12 @@
 /** functions **/
 void ListenForChatNotifications();
 void UpdateChatNotifications();
+void FreeChatNotifications(void* ptr);
 void CreateAndAddChatMessage(SlpCSSDesc* slpCss, MatchStateResponseBuffer* msrb, int playerIndex, int messageId);
 void UpdateChatMessage(GOBJ* gobj);
 Text* CreateChatMessageText(NotificationMessage* msg);
 bool IsValidChatGroupId(int groupId);
 bool IsValidChatMessageId(int messageId);
-
 
 NotificationMessage* CreateChatMessage(int playerIndex, int messageId){
 	NotificationMessage* msg = calloc(sizeof(NotificationMessage));
