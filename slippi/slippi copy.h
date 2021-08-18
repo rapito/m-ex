@@ -126,69 +126,40 @@ typedef struct SlippiCSSDataTableRef {
 
 const SlippiCSSDataTableRef* SLIPPI_CSS_DATA_REF = (SlippiCSSDataTableRef*) CSS_DATA_TABLE_BUFFER_ADDRESS; 
 
-/** DAT Descriptors **/
-typedef struct ChatWindowDesc {
-	JOBJDesc* jobj;
-} ChatWindowDesc;
+// /** DAT Descriptors **/
+// typedef struct ChatWindowDesc {
+// 	JOBJDesc* jobj;
+// } ChatWindowDesc;
 
-typedef struct SlpCSSDesc {
-	ChatWindowDesc* chatWindow;
-	JOBJSet* chatMessage;
-} SlpCSSDesc;
+// typedef struct SlpCSSDesc {
+// 	ChatWindowDesc* chatWindow;
+// 	JOBJSet* chatMessage;
+// } SlpCSSDesc;
 
-// EXI Transfer Modes
-typedef enum EXI_TX_MODE { 
-	EXI_TX_READ,
-	EXI_TX_WRITE,
-} EXI_TX_MODE;
+// // EXI Transfer Modes
+// typedef enum EXI_TX_MODE { 
+// 	EXI_TX_READ,
+// 	EXI_TX_WRITE,
+// } EXI_TX_MODE;
 
-// Static Functions
-void* (*EXITransferBuffer)(void* buffer, int bufferSize, EXI_TX_MODE txMode) = (void *)0x800055f0;
-Text* (*createSlippiPremadeText)(int playerIndex, int messageId, int textType, int GXLinkPriority, float x, float y, float z, float scale) = (void *)0x800056b4;
-int (*createSubtext)(Text* text, GXColor* color, int textType, int outlineColor, char** strArray, float scale, float x, float y, float innerTextY, float outlineSize) = (void *)0x800056b4;
+// // Static Functions
+// void* (*EXITransferBuffer)(void* buffer, int bufferSize, EXI_TX_MODE txMode) = (void *)0x800055f0;
+// Text* (*createSlippiPremadeText)(int playerIndex, int messageId, int textType, int GXLinkPriority, float x, float y, float z, float scale) = (void *)0x800056b4;
+// int (*createSubtext)(Text* text, GXColor* color, int textType, int outlineColor, char** strArray, float scale, float x, float y, float innerTextY, float outlineSize) = (void *)0x800056b4;
 
 
-/** Functions **/
-/**
- * Gets Slippi CSS Data Table
- * */
-SlippiCSSDataTable* GetSlpCSSDT(){
-	return SLIPPI_CSS_DATA_REF->dt;
-}
+// /** Functions **/
+// SlippiCSSDataTable* GetSlpCSSDT(){
+// 	return SLIPPI_CSS_DATA_REF->dt;
+// }
 
-/**
- * Gets Match State Response Buffer
- * */
-MatchStateResponseBuffer* MSRB(){
-	return GetSlpCSSDT()->msrb;
-}
-
-/**
- * Finds the number of remote players connected
- * */
-int GetRemotePlayerCount(){
- 	int count = 0;
-	MatchStateResponseBuffer* msrb = MSRB();
-	if(msrb->localPlayerIndex != 0 && strlen(msrb->p1Name) >= 0) count++;
-	else if(msrb->localPlayerIndex != 1 && strlen(msrb->p2Name) >= 0) count++;
-	else if(msrb->localPlayerIndex != 2 && strlen(msrb->p3Name) >= 0) count++;
-	else if(msrb->localPlayerIndex != 3 && strlen(msrb->p4Name) >= 0) count++;
- 	return count;
-}
-
-/**
- * Checks if on Online CSS
- * */
 bool IsSlippiOnlineCSS(){
 	return stc_scene_info->minor_curr == MNRKIND_TITLE && stc_scene_info->major_curr == MJRKIND_HANYUTESTCSS;
 }
 
-/**
- * Checks if game is on widescreen mode
- * */
-bool isWidescreen(){
-	bool res = R13_INT(R13_OFFSET_ISWIDESCREEN);
-	return res;
-}
+// bool isWidescreen(){
+// 	bool res = R13_INT(R13_OFFSET_ISWIDESCREEN);
+// 	return res;
+// }
 
 #endif SLIPPI_H
