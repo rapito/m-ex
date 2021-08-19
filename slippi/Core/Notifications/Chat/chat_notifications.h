@@ -19,6 +19,7 @@ void FreeChatNotifications(void* ptr);
 void CreateAndAddChatMessage(SlpCSSDesc* slpCss, MatchStateResponseBuffer* msrb, int playerIndex, int messageId);
 void UpdateChatMessage(GOBJ* gobj);
 Text* CreateChatMessageText(NotificationMessage* msg);
+Text* CreateChatMessageText2(NotificationMessage* msg);
 bool IsValidChatGroupId(int groupId);
 bool IsValidChatMessageId(int messageId);
 

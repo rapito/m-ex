@@ -72,24 +72,24 @@ typedef struct packed(MatchStateResponseBuffer) {
 	bool isRemotePlayerReady;
 	u8 localPlayerIndex;
 	u8 remotePlayerIndex;
-	u32 rngOffset;
+	void* rngOffset;
 	u8 delayFrames;
 	u8 userChatMsgId;
 	u8 oppChatMsgId;
 	u8 chatMsgPlayerIndex;
-	u32 VSLeftPlayers;
-	u32 VSRightPlayers;
-	char* localName[31];
-	char* p1Name[31];
-	char* p2Name[31];
-	char* p3Name[31];
-	char* p4Name[31];
-	char* oppName[31];
-	char* p1ConnectCode[10];
-	char* p2ConnectCode[10];
-	char* p3ConnectCode[10];
-	char* p4ConnectCode[10];
-	char* errorMessage[241];
+	u32* VSLeftPlayers;
+	u32* VSRightPlayers;
+	char localName[31];
+	char p1Name[31];
+	char p2Name[31];
+	char p3Name[31];
+	char p4Name[31];
+	char oppName[31];
+	char p1ConnectCode[10];
+	char p2ConnectCode[10];
+	char p3ConnectCode[10];
+	char p4ConnectCode[10];
+	char errorMessage[241];
 	MatchInit gameInfoBlock;
 } MatchStateResponseBuffer;
 
@@ -144,7 +144,7 @@ typedef enum EXI_TX_MODE {
 
 // Static Functions
 void* (*EXITransferBuffer)(void* buffer, int bufferSize, EXI_TX_MODE txMode) = (void *)0x800055f0;
-Text* (*createSlippiPremadeText)(int playerIndex, int messageId, int textType, int GXLinkPriority, float x, float y, float z, float scale) = (void *)0x800056b4;
+Text* (*createSlippiPremadeText)(int playerIndex, int messageId, int textType, int gx_pri, float x, float y, float z, float scale) = (void *)0x800056b4;
 int (*createSubtext)(Text* text, GXColor* color, int textType, int outlineColor, char** strArray, float scale, float x, float y, float innerTextY, float outlineSize) = (void *)0x800056b4;
 
 

@@ -1,9 +1,10 @@
 #ifndef SLIPPI_CORE_CHAT_NOTIFICATION_C
 #define SLIPPI_CORE_CHAT_NOTIFICATION_C
-#include "../../../common.h"
 #include "chat_notifications.h"
-#include "../notifications.c"
 #include "text.c"
+
+#include "../../../common.h"
+#include "../notifications.c"
 
 int ChatMessagesLocalCount = 0;
 int ChatMessagesRemoteCount = 0;
@@ -69,7 +70,8 @@ void CreateAndAddChatMessage(SlpCSSDesc* slpCss, MatchStateResponseBuffer* msrb,
 
 	NotificationMessage* chatMessage = CreateChatMessage(playerIndex, messageId);
 	CreateAndAddNotificationMessage(slpCss, chatMessage);
-	chatMessage->text = CreateChatMessageText(chatMessage);
+//	chatMessage->text = CreateChatMessageText(chatMessage);
+	chatMessage->text = CreateChatMessageText2(chatMessage);
 	SFX_Play(CHAT_SOUND_NEW_MESSAGE);
 	
 	if(isLocalMessage){
@@ -79,26 +81,11 @@ void CreateAndAddChatMessage(SlpCSSDesc* slpCss, MatchStateResponseBuffer* msrb,
 	}
 }
 
-typedef struct packed(stc_txtcanvas_gx) {
-    u8 gx_link;
-    u8 gx_pri;
-} stc_txtcanvas_gx;
-
-stc_txtcanvas_gx *stc_textcanvas_first_gx = (R13 + (-0x3d24) + 0xE);
-
 Text* CreateChatMessageText(NotificationMessage* msg){
-	SlippiCSSDataTable* dt = SLIPPI_CSS_DATA_REF->dt;
-	
-	// stc_textcanvas_first[0]->gxlink = 3; // Hack to change struct gxlink? initial value
-	// Text* text = createSlippiPremadeText(1, 0x88, 2, 0, -29.5f, -23.25f - jobj->trans.Y, 5.0f, 0.04f);
-	// msg->text = text;
-	// stc_textcanvas_first[0]->gxlink = 1; // restore
+	MatchStateResponseBuffer * msrb = MSRB();
+	bool isLocalMessage = msg->playerIndex == msrb->localPlayerIndex;
 
-	OSReport("0x%x 0x%x 0x%x\n", stc_textcanvas_first, stc_textcanvas_first[0], (u8*)stc_textcanvas_first[0]+(u8)0xE);
 	Text* text = Text_CreateTextWithGX(0, 0, 3, 129);
-
-//	text->gobj->gx_link = 3;
-//	text->gobj->gx_pri = 129;
 	text->kerning = 1;
 	text->align = 0;
 	text->trans.Z = 5.0f;
@@ -109,23 +96,37 @@ Text* CreateChatMessageText(NotificationMessage* msg){
 
 	text->hidden = true; // hide by default
 
-	// Dolphin returns the group and mmessage id joined together so we need to split them
+	// Dolphin returns the group and message id joined together so we need to split them
 	int groupId = msg->messageId >> 4;
 	int messageId = (groupId << 4) ^ msg->messageId;
-	char* playerName = dt->msrb->p1Name; 
-	// char* playerName = ((dt->msrb->p1Name)+(31*msg->playerIndex));
+	char* playerName = isLocalMessage ? msrb->localName : msrb->p1Name+(msg->playerIndex*31);
 
 	char* name = strcat(playerName,": "); 
 	char* message = GetChatText(groupId, messageId, false);
 	float xPos = isWidescreen() ? -446.0f : -296.0f;
-	float yPos = -252.0f + ((msg->id)*31.8f);
-	int colorIndex = dt->msrb->localPlayerIndex+1; 
+	float yPos = -252.0f + ((msg->id)*32.0f);
+	int colorIndex = msrb->localPlayerIndex+1;
 	float scale = 0.4f;
 
 	createSubtext(text, &MSG_COLORS[colorIndex], 0x0, 0, (char**){name}, scale, xPos, yPos, 0.0f, 0.0f);
 	createSubtext(text, &MSG_COLORS[0], 0x0, 0, (char**){message}, scale, strlen(name)*6.8f + xPos, yPos, 0.0f, 0.0f);
 
 	return text;
+}
+
+Text* CreateChatMessageText2(NotificationMessage* msg){
+    MatchStateResponseBuffer * msrb = MSRB();
+
+    // Hack the text alloc info to use a different gx
+    stc_textcanvas_first[0]->gx_link = 3;
+    stc_textcanvas_first[0]->gx_pri = 129;
+    Text* text = createSlippiPremadeText(msrb->localPlayerIndex+1, msg->messageId, 2, 0, -29.5f, -23.25f+(msg->id*3.2f), 5.0f, 0.04f);
+    stc_textcanvas_first[0]->gx_link = 1;
+    stc_textcanvas_first[0]->gx_pri = 0x80;
+
+    text->hidden = true; // hide by default
+
+    return text;
 }
 
 bool IsValidChatGroupId(int groupId){
@@ -146,60 +147,6 @@ bool IsValidChatGroupId(int groupId){
 bool IsValidChatMessageId(int messageId){
 	// For now use same logic
 	return IsValidChatGroupId(messageId);
-}
-
-void UpdateChatMessage(GOBJ* gobj){
-	NotificationMessage* msg = gobj->userdata;
-	JOBJ* jobj = (JOBJ*)gobj->hsd_object;
-	int framesLeft = msg->framesLeft--;
-	JOBJ_AnimAll(jobj);
-	// OSReport("UpdateChatMessage ID: %i, FramesLeft: %i\n", msg->id, msg->framesLeft);
-
-	// Skip update until timer runs out
-	if(framesLeft>0) return;
-
-	switch (msg->state)
-	{
-	case SLP_NOT_STATE_STARTING:
-		// Restart timer and move to next state
-		msg->state = SLP_NOT_STATE_IDLE;
-		msg->framesLeft = CHAT_FRAMES*8.5; 
-		
-		// Show text here
-		// if(!msg->text){
-		// 	msg->text = CreateChatMessageText(msg, jobj);
-		// }
-		
-		break;
-	case SLP_NOT_STATE_IDLE:
-		// Restart timer and move to next state
-		msg->state = SLP_NOT_STATE_CLEANUP;
-		msg->framesLeft = CHAT_FRAMES; 
-
-		// Destroy/Hide Text Here
-		// OSReport("UpdateChatMessage.Idle: ptr: 0x%x", (void*)(msg->text+0x5c));
-		// HSD_Free((void*)(msg->text+0x5c));
-		if(msg->text)
-			Text_Destroy(msg->text);
-		
-		// Animate chat message to hide
-		JOBJ_AddSetAnim(jobj, msg->jobjSet, 1);
-		JOBJ_ReqAnimAll(jobj, 0.0f);
-		break;
-	case SLP_NOT_STATE_CLEANUP:
-		NotificationMessagesSet[msg->id] = false;
-		if(msg->playerIndex == GetSlpCSSDT()->msrb->localPlayerIndex){
-			ChatMessagesLocalCount--;
-		} else {
-			ChatMessagesRemoteCount--;
-		}
-		OSReport("Deleted Message with ID: %i\n", msg->id);
-		GObj_Destroy(gobj);
-		break;
-	default:
-		break;
-	}
-
 }
 
 #endif SLIPPI_CORE_CHAT_NOTIFICATION_C
