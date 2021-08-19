@@ -62,12 +62,25 @@
 #define SLIPPI_CMD_GetPremadeTextLength 0xE1
 #define SLIPPI_CMD_GetPremadeText 0xE2
 
+
+//################################################################################
+//# Matchmaking States
+//################################################################################
+typedef enum MatchmakingConnectionState {
+    MM_STATE_IDLE,
+    MM_STATE_INITIALIZING,
+    MM_STATE_MATCHMAKING,
+    MM_STATE_OPPONENT_CONNECTING,
+    MM_STATE_CONNECTION_SUCCESS,
+    MM_STATE_ERROR_ENCOUNTERED
+} MatchmakingConnectionState;
+
 // ################################################################################
 // # Match State Response Buffer
 // ################################################################################
 
 typedef struct packed(MatchStateResponseBuffer) {
-	u8 connectionState;
+	u8 connectionState;             // Matchmaking State defined above
 	bool isLocalPlayerReady;
 	bool isRemotePlayerReady;
 	u8 localPlayerIndex;
@@ -77,6 +90,7 @@ typedef struct packed(MatchStateResponseBuffer) {
 	u8 userChatMsgId;
 	u8 oppChatMsgId;
 	u8 chatMsgPlayerIndex;
+	u8 remotePlayerCount;
 	u32* VSLeftPlayers;
 	u32* VSRightPlayers;
 	char localName[31];
@@ -167,13 +181,7 @@ MatchStateResponseBuffer* MSRB(){
  * Finds the number of remote players connected
  * */
 int GetRemotePlayerCount(){
- 	int count = 0;
-	MatchStateResponseBuffer* msrb = MSRB();
-	if(msrb->localPlayerIndex != 0 && strlen(msrb->p1Name) >= 0) count++;
-	else if(msrb->localPlayerIndex != 1 && strlen(msrb->p2Name) >= 0) count++;
-	else if(msrb->localPlayerIndex != 2 && strlen(msrb->p3Name) >= 0) count++;
-	else if(msrb->localPlayerIndex != 3 && strlen(msrb->p4Name) >= 0) count++;
- 	return count;
+ 	return MSRB()->remotePlayerCount;
 }
 
 /**
@@ -181,6 +189,14 @@ int GetRemotePlayerCount(){
  * */
 bool IsSlippiOnlineCSS(){
 	return stc_scene_info->minor_curr == MNRKIND_TITLE && stc_scene_info->major_curr == MJRKIND_HANYUTESTCSS;
+}
+
+/**
+ * Check if currently connected to an opponent
+ * @return
+ */
+bool isConnected(){
+    return MSRB()->connectionState == MM_STATE_CONNECTION_SUCCESS;
 }
 
 /**

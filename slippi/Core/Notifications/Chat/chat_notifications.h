@@ -22,6 +22,10 @@ Text* CreateChatMessageText(NotificationMessage* msg);
 Text* CreateChatMessageText2(NotificationMessage* msg);
 bool IsValidChatGroupId(int groupId);
 bool IsValidChatMessageId(int messageId);
+void FreeChatMessage(void* ptr);
+bool CanAddNewChatMessage();
+int GetMaxAllowedLocalMessages();
+
 
 NotificationMessage* CreateChatMessage(int playerIndex, int messageId){
 	NotificationMessage* msg = calloc(sizeof(NotificationMessage));
@@ -31,6 +35,7 @@ NotificationMessage* CreateChatMessage(int playerIndex, int messageId){
 	msg->animationFrames = CHAT_FRAMES;
 	msg->playerIndex = playerIndex;
 	msg->messageId = messageId;
+	msg->desctructorFunc = FreeChatMessage;
 	
 	return msg;
 }

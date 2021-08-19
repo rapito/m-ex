@@ -57,7 +57,9 @@ void CreateAndAddNotificationMessage(SlpCSSDesc* slpCss, NotificationMessage* me
 	JOBJ_AddSetAnim(jobj, slpCss->chatMessage, 0);
 	JOBJ_ReqAnimAll(jobj, 0.0f);
 
-	GObj_AddUserData(gobj, 0x4, HSD_Free, message);
+	void* destructor = message->desctructorFunc ? message->desctructorFunc : HSD_Free;
+
+	GObj_AddUserData(gobj, 0x4, destructor, message);
 	GObj_AddObject(gobj, 0x4, jobj);
 	GObj_AddGXLink(gobj, GXLink_Common, 3, 129);
 	GObj_AddProc(gobj, UpdateNotificationMessage, 0x4);
@@ -103,13 +105,8 @@ void UpdateNotificationMessage(GOBJ* gobj){
 		break;
 	case SLP_NOT_STATE_CLEANUP:
 		NotificationMessagesSet[msg->id] = false;
-		if(msg->playerIndex == GetSlpCSSDT()->msrb->localPlayerIndex){
-			ChatMessagesLocalCount--;
-		} else {
-			ChatMessagesRemoteCount--;
-		}
 
-		OSReport("Deleted Message with ID: %i\n", msg->id);
+//		OSReport("Deleted Message with ID: %i\n", msg->id);
 		GObj_Destroy(gobj);
 		// If there's no message after this one, restart LastNotificationMessageID
 		for(int i=0;i<NOTIFICATION_MESSAGE_SET_LENGTH;i++) if(NotificationMessagesSet[i]) return;
@@ -129,14 +126,14 @@ int GetNextNotificationMessageID(){
     if(i < NOTIFICATION_MESSAGE_SET_LENGTH){
         if(!NotificationMessagesSet[i]) {
             NotificationMessagesSet[i] = true;
-            OSReport("GetNextNotificationMessageID: %i\n", i);
+//            OSReport("GetNextNotificationMessageID: %i\n", i);
             return LastNotificationMessageID = i;
         }
     } else {
         for(int i=0;i<NOTIFICATION_MESSAGE_SET_LENGTH;i++){
             if(!NotificationMessagesSet[i]){
                 NotificationMessagesSet[i] = true;
-                OSReport("GetNextNotificationMessageID: %i\n", i);
+//                OSReport("GetNextNotificationMessageID: %i\n", i);
                 return LastNotificationMessageID = i;
             }
         }
@@ -153,7 +150,7 @@ bool CanAddNewMessage(){
 	for(int i=0;i<NOTIFICATION_MESSAGE_SET_LENGTH;i++){
 		if(NotificationMessagesSet[i]) activeMessages++;
 	}
-	return activeMessages < CHAT_MAX_PLAYER_MESSAGES;
+	return activeMessages < NOTIFICATION_MESSAGE_SET_LENGTH;
 }
 
 

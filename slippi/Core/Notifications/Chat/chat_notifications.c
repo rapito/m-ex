@@ -57,15 +57,29 @@ void UpdateChatNotifications(){
 		OSReport("Invalid Chat Command: %i!\n", messageId);	
 		return;
 	}
-
-
 	CreateAndAddChatMessage(dt->SlpCSSDatAddress, msrb, playerIndex, messageId);
+}
+
+void FreeChatMessage(void* ptr){
+    if(!ptr) return;
+
+    NotificationMessage* chatMessage = (NotificationMessage*)ptr;
+    bool isLocalMessage = chatMessage->playerIndex == MSRB()->localPlayerIndex;
+
+    if(isLocalMessage){
+        ChatMessagesLocalCount--;
+    } else {
+        ChatMessagesRemoteCount--;
+    }
+    OSReport("Free -> Local: %i Remote: %i\n", ChatMessagesLocalCount, ChatMessagesRemoteCount);
+
+    HSD_Free(ptr);
 }
 
 void CreateAndAddChatMessage(SlpCSSDesc* slpCss, MatchStateResponseBuffer* msrb, int playerIndex, int messageId){
 	bool isLocalMessage = playerIndex == msrb->localPlayerIndex;
-	if(!isLocalMessage && ChatMessagesRemoteCount >= GetRemotePlayerCount()*CHAT_MAX_PLAYER_MESSAGES)
-		// Don't allow adding more messages than the allowed max per player
+	// Prevent going over the limit
+	if((ChatMessagesRemoteCount + ChatMessagesLocalCount) >= NOTIFICATION_MESSAGE_SET_LENGTH)
 		return;
 
 	NotificationMessage* chatMessage = CreateChatMessage(playerIndex, messageId);
@@ -79,6 +93,7 @@ void CreateAndAddChatMessage(SlpCSSDesc* slpCss, MatchStateResponseBuffer* msrb,
 	} else {
 		ChatMessagesRemoteCount++;
 	}
+	OSReport("Local: %i Remote: %i\n", ChatMessagesLocalCount, ChatMessagesRemoteCount);
 }
 
 Text* CreateChatMessageText(NotificationMessage* msg){
@@ -115,18 +130,30 @@ Text* CreateChatMessageText(NotificationMessage* msg){
 }
 
 Text* CreateChatMessageText2(NotificationMessage* msg){
-    MatchStateResponseBuffer * msrb = MSRB();
-
     // Hack the text alloc info to use a different gx
     stc_textcanvas_first[0]->gx_link = 3;
     stc_textcanvas_first[0]->gx_pri = 129;
-    Text* text = createSlippiPremadeText(msrb->localPlayerIndex+1, msg->messageId, 2, 0, -29.5f, -23.25f+(msg->id*3.2f), 5.0f, 0.04f);
+    Text* text = createSlippiPremadeText(msg->playerIndex+1, msg->messageId, 2, 0, -29.5f, -23.25f+(msg->id*3.2f), 5.0f, 0.04f);
     stc_textcanvas_first[0]->gx_link = 1;
     stc_textcanvas_first[0]->gx_pri = 0x80;
 
     text->hidden = true; // hide by default
 
     return text;
+}
+
+/**
+ * Max number of messages a user can send locally
+ * Halves the amount of messages allowed if the player count > 2
+ * @return
+ */
+int GetMaxAllowedLocalMessages(){
+    int res = GetRemotePlayerCount() > 1 ? CHAT_MAX_PLAYER_MESSAGES / 2 : CHAT_MAX_PLAYER_MESSAGES;
+    return res;
+}
+
+bool CanAddNewChatMessage(){
+    return CanAddNewMessage() && ChatMessagesLocalCount < GetMaxAllowedLocalMessages();
 }
 
 bool IsValidChatGroupId(int groupId){

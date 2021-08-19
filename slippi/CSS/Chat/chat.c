@@ -53,7 +53,6 @@ void UpdateChat(){
     ChatInput* chatInput = PadGetChatInput(false);
     if(chatInput->input <= 0) return; // Return if not input
 
-
     SlpCSSDesc* slpCss = GetSlpCSSDT()->SlpCSSDatAddress;// File_GetSymbol(archive, "slpCSS");
 	ChatWindowData* data = calloc(sizeof(ChatWindowData));
 
@@ -89,10 +88,8 @@ void UpdateChat(){
 void UpdateChatWindow(GOBJ* gobj){
     // OSReport("UpdateChatWindow\n");
 	ChatWindowData* data = gobj->userdata;
-	SlpCSSDesc* slpCss = data->slpCss;
 	JOBJ* jobj = (JOBJ*)gobj->hsd_object;
 
-	int framesLeft = data->framesLeft;
 	data->framesCounter++; // Increase Frames Counter
 
 	if(!data->text) {
@@ -118,12 +115,11 @@ void UpdateChatWindow(GOBJ* gobj){
         // Should close and send chat message
         if(data->framesCounter < CHAT_ALLOW_COMMAND_FRAMES) {
             return;
-        } else if(CanAddNewMessage()) {
+        } else if(CanAddNewChatMessage()) {
             data->framesCounter = 0; // Reset frames counter since last message sent
             int chatCommand = (data->groupId << 4) + chatInput->input;
-            OSReport("chatInput->input: %i, a: 0x%x\n", chatInput->input, chatCommand);
+//            OSReport("chatInput->input: %i, a: 0x%x\n", chatInput->input, chatCommand);
             SendOutgoingChatCommand(chatCommand);
-            // CreateAndAddChatMessage(slpCss, playerIndex, chatInput);
             CloseChatWindow(jobj, data);
             return;
         } else {
@@ -218,7 +214,7 @@ void SendOutgoingChatCommand(int messageId)
 	OutgoingChatMessageBuffer* buffer = HSD_MemAlloc(sizeof(OutgoingChatMessageBuffer));
 	buffer->cmd = SLIPPI_CMD_SendChatMessage;
 	buffer->messageId = messageId;
-    OSReport("SendOutgoingChatCommand buffer cmd:%i, msgId:%i size: %i\n", buffer->cmd, buffer->messageId, sizeof(OutgoingChatMessageBuffer));
+//    OSReport("SendOutgoingChatCommand buffer cmd:%i, msgId:%i size: %i\n", buffer->cmd, buffer->messageId, sizeof(OutgoingChatMessageBuffer));
 	EXITransferBuffer(buffer, sizeof(OutgoingChatMessageBuffer), EXI_TX_WRITE);
 }
 #endif SLIPPI_CSS_CHAT_C

@@ -29,6 +29,7 @@ typedef struct NotificationMessage {
     SlippiNotificationType type;    // Slippi Notification Type			
 	SlippiNotificationState state; 	// Initial message state
 	Text* text;					    // Created Text Object
+	void* desctructorFunc;          // Function used to destroy this object (Default to HSD_Free)
 	int id; 					    // ID of this message
 	int animationFrames; 			// Amount of frames the message is displayed for 
 	int framesLeft; 			    // Amount of frames the message is displayed for (counter)
@@ -44,6 +45,7 @@ NotificationMessage* CreateNotificationMessage(int messageId, SlippiNotification
 	msg->framesLeft = DEFAULT_ANIM_FRAMES;
 	msg->animationFrames = DEFAULT_ANIM_FRAMES;
 	msg->messageId = messageId;
+	msg->desctructorFunc = HSD_Free;
 	return msg;
 }
 
