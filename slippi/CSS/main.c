@@ -3,7 +3,7 @@
 #include "main.h"
 
 #include "../Core/Notifications/notifications.c"
-#include "../Chat/chat.c"
+#include "Chat/chat.c"
 
 void UpdateOnlineCSS(){
     if(!IsSlippiOnlineCSS()) return;

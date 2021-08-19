@@ -1,8 +1,8 @@
 #ifndef SLIPPI_CORE_CHAT_NOTIFICATION_C
 #define SLIPPI_CORE_CHAT_NOTIFICATION_C
-#include "../common.h"
+#include "../../../common.h"
 #include "chat_notifications.h"
-#include "../Core/Notifications/notifications.c"
+#include "../notifications.c"
 #include "text.c"
 
 int ChatMessagesLocalCount = 0;
