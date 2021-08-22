@@ -63,26 +63,6 @@
 #define SLIPPI_CMD_GetPremadeText 0xE2
 
 
-typedef struct MinorData
-{
-    u8 maxGames;
-    u8 currentGame;
-    u8 p1Score;
-    u8 p2Score;
-    u8 prevWinner;
-    u8 isTieBreak;
-    u8 resultCount1;
-    u8 resultCount2;
-    u8 resultCount3;
-    u8 resultCount4;
-    u8 resultCount5;
-    u8 resultCount6;
-    u8 resultCount7;
-    u8 resultCount8;
-    u8 resultCount9;
-    u8 lastStageWonP1;
-    u8 lastStageWonP2;
-} MinorData;
 
 //################################################################################
 //# Matchmaking States
