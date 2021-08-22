@@ -491,6 +491,12 @@ struct JOBJSet
     void **shapeaninjoint;
 };
 
+struct LOBJSet
+{
+    void *lobjDesc;
+    void *lightAnim;
+};
+
 /*** Static Variables ***/
 GOBJList **stc_gobj_list = R13 + (-0x3E74);
 u8 *obj_kind = R13 + -(0x3E55);

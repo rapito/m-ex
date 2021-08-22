@@ -51,6 +51,7 @@ typedef struct _HSD_LightAttn _HSD_LightAttn;
 typedef struct LOBJ LOBJ;
 typedef struct HSD_Fog HSD_Fog;
 typedef struct JOBJSet JOBJSet;
+typedef struct LOBJSet LOBJSet;
 
 // Archive
 typedef struct ArchiveInfo ArchiveInfo;

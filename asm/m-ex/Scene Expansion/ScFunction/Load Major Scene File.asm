@@ -59,27 +59,31 @@ backup
   stw	r0, -0x52D8 (r13)
 
 # load file
-  mr r3, REG_EntryNum        # file entrynum
-  li r4, 0                   # offset
-  mr r5, REG_File            # addr
-  addi r6,REG_FileSize,31    # bytes to load  
-  rlwinm r6,r6,0,0,26        # bytes to load     
-  li r7,33                   # main ram (i think)
-  li r8, 1                   # honestly no idea
-  load r9,0x8001615c         # callback
-  li r10, 0                  # no idea for this either
-  branchl   r12,0x8038f6d4
+#   mr r3, REG_EntryNum        # file entrynum
+#   li r4, 0                   # offset
+#   mr r5, REG_File            # addr
+#   addi r6,REG_FileSize,31    # bytes to load  
+#   rlwinm r6,r6,0,0,26        # bytes to load     
+#   li r7,33                   # main ram (i think)
+#   li r8, 1                   # honestly no idea
+#   load r9,0x8001615c         # callback
+#   li r10, 0                  # no idea for this either
+#   branchl   r12,0x8038f6d4
 
-WaitForFile:
-  branchl   r12,0x800161a0
-  cmpwi r3,0
-  beq  WaitForFile
+# WaitForFile:
+#   branchl   r12,0x800161a0
+#   cmpwi r3,0
+#   beq  WaitForFile
   
 # init archive
-  mr r3,REG_Archive
-  mr r4,REG_File
-  mr r5,REG_FileSize
-  branchl r12,0x80016a54
+  # mr r3,REG_Archive
+  # mr r4,REG_File
+  # mr r5,REG_FileSize
+  # branchl r12,0x80016a54
+
+  lwz  r3,0x14(REG_MajorScene)
+  branchl r12,0x80016be0
+  mr REG_Archive,r3
 
 # get scFunction symbol
   mr r3,REG_Archive

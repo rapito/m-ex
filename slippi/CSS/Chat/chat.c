@@ -53,7 +53,10 @@ void UpdateChat(){
     ChatInput* chatInput = PadGetChatInput(false);
     if(chatInput->input <= 0) return; // Return if not input
 
-    SlpCSSDesc* slpCss = GetSlpCSSDT()->SlpCSSDatAddress;// File_GetSymbol(archive, "slpCSS");
+    // TODO: Move this back
+    // SlpCSSDesc* slpCss = GetSlpCSSDT()->SlpCSSDatAddress;// File_GetSymbol(archive, "slpCSS");
+    ArchiveInfo* archive = File_Load("slpCSS.dat");
+    SlpCSSDesc* slpCss = File_GetSymbol(archive, "slpCSS");
 	ChatWindowData* data = calloc(sizeof(ChatWindowData));
 
     // create chat window with required group id
