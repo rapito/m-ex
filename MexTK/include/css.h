@@ -242,7 +242,7 @@ u8 *stc_css_hasreleasedb;
 u8 *stc_css_exitkind;
 u8 *stc_css_49a9;
 MnSelectChrDataTable **stc_css_datatable;
-COBJDesc **stc_css_cobjdesc;
+COBJDesc **stc_css_cobjdesc = (R13 + (-0x04ADC));
 GOBJ **stc_css_camgobj;
 HSD_Pad *stc_css_pad;
 u8 *stc_css_unkarr;

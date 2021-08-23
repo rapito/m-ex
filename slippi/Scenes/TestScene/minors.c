@@ -1,4 +1,4 @@
-#include "../../../MexTK/mex.h";
+#include "../../../MexTK/mex.h"
 #include "../../common.h"
 #include "../../slippi.h"
 
@@ -6,7 +6,11 @@
 #include "../../CSS/Chat/chat.c"
 
 void minor_think(){
-	OSReport("Slippi minor_think!\n");
+    HSD_Pad* pad = PadGet(3, PADGET_ENGINE);
+	OSReport("Slippi minor_think! %i\n", pad->down);
+	if(pad->down & PAD_BUTTON_B){
+	    Scene_ExitMinor();
+	}
 }
 
 typedef struct FogAdjDesc {
@@ -43,7 +47,6 @@ void minor_load(){
 	OSReport("Slippi minor_load!\n");
 
 	GOBJ* gobj = GObj_Create(0x4, 0, 0x80); // = 80c237a0
-	void* thinkFn = 0x80c1eaf8; // This is maybe the main input proc?
 	GObj_AddProc(gobj, inputThinkFunction, 0);
 
 	ArchiveInfo* guiFile = File_Load("SlippiScenesGUI.dat"); //= 80cf4600
@@ -53,17 +56,11 @@ void minor_load(){
 	GOBJ* camGobj = GObj_Create(2, 3, 0x80); //= 80cf4680
 	COBJ* camera = COBJ_LoadDesc(sceneDesc->cameras[0]); //= 80c1ada0
 	GObj_AddObject(camGobj, 1, camera);
-	void* camInitFn = 0x80c1ec34; // Camera init function?
 	GOBJ_InitCamera(camGobj, camInitFunction, 0);
 	GObj_AddProc(camGobj, MainMenu_CamRotateThink, 5);
 
-	// TODO: figure this out
-	// This seems like a hack to force the main camera to be our camera
-	// and then forcing our cam gobj to use somce specific cobj links, (whatever those are)
-	stc_css_cobjdesc = sceneDesc->cameras[0];
-	OSReport("CamObj 0x%x, 0x%x\n", camGobj->cobj_links, camGobj->cobj_links+0x4);
-	camGobj->cobj_links = 0x000000000000002f;
-	OSReport("CamObj 0x%x, 0x%x\n\n", camGobj->cobj_links, camGobj->cobj_links+0x4);
+	*stc_css_cobjdesc = sceneDesc->cameras[0];
+	camGobj->cobj_links = 0x1f;
 	// End camera setup
 
 	// Fog Setup
@@ -79,7 +76,6 @@ void minor_load(){
 	GObj_AddGXLink(lobjGobj, GXLink_LObj, 0, 0x80);
 
 
-	JOBJ* jobj = sceneDesc->jobjs[0];
 	JOBJ_LoadSet(false, sceneDesc->jobjs[0], 0, 0.0f, 3, 1, true, GObj_Anim);
 	JOBJ_LoadSet(false, sceneDesc->jobjs[1], 0, 0.0f, 3, 1, true, GObj_Anim);
 
