@@ -54,7 +54,7 @@ typedef struct JOBJSet JOBJSet;
 typedef struct LOBJSet LOBJSet;
 
 // Archive
-typedef struct ArchiveInfo ArchiveInfo;
+typedef struct HSD_Archive HSD_Archive;
 typedef struct MapHead MapHead;
 
 // Stage
@@ -65,6 +65,7 @@ typedef struct MapDesc MapDesc;
 typedef struct StageFile StageFile;
 typedef struct GrDesc GrDesc;
 typedef struct GrExtLookup GrExtLookup;
+typedef struct LineHazardDesc LineHazardDesc;
 typedef struct GeneralPoints GeneralPoints;
 typedef struct GeneralPointsInfo GeneralPointsInfo;
 
@@ -129,6 +130,7 @@ typedef struct ReflectDesc ReflectDesc;
 typedef struct ShieldDesc ShieldDesc;
 typedef struct AbsorbDesc AbsorbDesc;
 typedef struct AfterImageDesc AfterImageDesc;
+typedef struct CPULeaderLog CPULeaderLog;
 typedef struct CPU CPU;
 typedef struct FtCollDesc FtCollDesc;
 typedef struct FtSFX FtSFX;
@@ -187,7 +189,6 @@ typedef struct Rules1 Rules1;
 // Collision
 typedef struct CollData CollData;
 typedef struct ECBSize ECBSize;
-typedef struct DmgHazard DmgHazard;
 typedef struct CollLineInfo CollLineInfo;
 typedef struct CollLine CollLine;
 typedef struct CollVert CollVert;

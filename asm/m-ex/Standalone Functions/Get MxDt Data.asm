@@ -22,6 +22,8 @@ bl  MnSlMpIcon
 bl  CostumeSymbol
 bl  GrDesc
 bl  GrExternalLookup
+bl  GrName
+bl  FtName
 #*****************************#
 SkipJumpTable:
 #Get effect type
@@ -70,6 +72,14 @@ GrExternalLookup:
   lwz r3,OFST_mexData(rtoc)
   lwz r3,Arch_Map(r3)
   lwz r3,Arch_Map_StageIDs(r3)
+GrName:
+  lwz r3,OFST_mexData(rtoc)
+  lwz r3,Arch_Map(r3)
+  lwz r3,Arch_Map_StageNames(r3)
+FtName:
+  lwz r3,OFST_mexData(rtoc)
+  lwz r3,Arch_Fighter(r3)
+  lwz r3,Arch_Fighter_NameText(r3)
   b Exit
 
 #############################################

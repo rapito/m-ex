@@ -220,8 +220,8 @@ MnSlChrData *stc_css_data;
 VSMinorData **stc_css_minorscene;
 u8 *stc_css_regtagnum; // number of registered tags
 u8 *stc_css_49a7;
-ArchiveInfo **stc_css_archive;
-ArchiveInfo **stc_css_menuarchive;
+HSD_Archive **stc_css_archive;
+HSD_Archive **stc_css_menuarchive;
 u8 *stc_css_custom_rules;
 GOBJ **stc_css_menugobj = 0x804D6CBC;
 JOBJ **stc_css_menumodel = 0x804D6CC0;

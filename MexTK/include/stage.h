@@ -449,7 +449,7 @@ struct MapHead
 
 struct StageFile
 {
-    ArchiveInfo *archive_info;
+    HSD_Archive *archive;
     MapHead *map_head;
 };
 
@@ -475,6 +475,19 @@ struct GrExtLookup
     int internal_id;
     int x4;
     int x8;
+};
+
+struct LineHazardDesc
+{
+    int x0;
+    int dmg;
+    int angle;
+    int kb_growth;
+    int x10;
+    int kb;
+    int element;
+    int x1c;
+    int sfx;
 };
 
 Stage *stc_stage = 0x8049e6c8;
