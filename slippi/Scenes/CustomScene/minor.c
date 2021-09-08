@@ -119,8 +119,8 @@ void CommonSceneSetup(void* inputThinkFunction, char* GUIFilename, char* sceneDe
     GOBJ* gobj = GObj_Create(0x4, 0, 0x80);
     GObj_AddProc(gobj, inputThinkFunction, 0);
 
-    ArchiveInfo* guiFile = File_Load(GUIFilename);
-    SceneDesc* sceneDesc = File_GetSymbol(guiFile, sceneDescSymbolName);
+    HSD_Archive* guiFile = Archive_LoadFile(GUIFilename);
+    SceneDesc* sceneDesc = Archive_GetPublicAddress(guiFile, sceneDescSymbolName);
 
     // Camera Setup
     GOBJ* camGobj = GObj_Create(2, 3, 0x80);

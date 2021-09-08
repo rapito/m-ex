@@ -49,8 +49,8 @@ void minor_load(){
 	GOBJ* gobj = GObj_Create(0x4, 0, 0x80); // = 80c237a0
 	GObj_AddProc(gobj, inputThinkFunction, 0);
 
-	ArchiveInfo* guiFile = File_Load("SlippiScenesGUI.dat"); //= 80cf4600
-	SceneDesc* sceneDesc = File_GetSymbol(guiFile, "SceneData"); //= 80ce8d60
+	HSD_Archive* guiFile = Archive_LoadFile("SlippiScenesGUI.dat"); //= 80cf4600
+	SceneDesc* sceneDesc = Archive_GetPublicAddress(guiFile, "SceneData"); //= 80ce8d60
 
 	// Camera Setup
 	GOBJ* camGobj = GObj_Create(2, 3, 0x80); //= 80cf4680
