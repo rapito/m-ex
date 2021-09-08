@@ -4,6 +4,7 @@
 
 // Initialize minor data
 static SharedMinorData minorData = {0};
+static VSMinorData cssMinorData = {0};
 
 // Initialize Minor Scene Array
 static  MinorScene __attribute__((__used__)) minor_scene[] = {
@@ -33,9 +34,9 @@ static  MinorScene __attribute__((__used__)) minor_scene[] = {
         .heap_kind = HEAPKIND_UNK3,
         .minor_prep = ScenePrep,
         .minor_decide = SceneDecide,
-        .minor_kind = COMMON_MNRKIND_CUSTOM_SCENE_SUBMENU,
-        .load_data = &minorData,
-        .unload_data = &minorData,
+        .minor_kind = MNRKIND_CSS,
+        .load_data = &cssMinorData,
+        .unload_data = &cssMinorData,
         },
 };
 
@@ -64,8 +65,12 @@ void ScenePrep(MinorScene *scene){
     OSReport("CustomScene.major prep!\n");
 
     // We really don't have anything to do here, but you could do some stuff
-    // with the mminorData before passing it over to the next minor scene
+    // with the minorData before passing it over to the next minor scene
     // if you don't own the code for it. (Like opening a Match Scene with some custom data)
+
+    if(scene->minor_id == CUSTOM_SCENE_MINOR_SUBMENU_3) { // CSS prep
+        Preload_Invalidate();
+    }
 
 }
 

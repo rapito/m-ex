@@ -178,34 +178,33 @@ ChatInput* PadGetChatInput(bool checkForCommands){
     // Check each player if matches any of the allowed commands
     // if found, return the ChatInput object with info on who
     // pressed the button 
-    for(int playerIndex=0;playerIndex<4;playerIndex++)
-	{
-		HSD_Pad* pad = PadGet(playerIndex, PADGET_ENGINE);
 
-        for(int i=0;i<sizeof(normalInputs) / sizeof(int);i++){
-            int inputToCheck = normalInputs[i];
-            if(pad->down & inputToCheck){
-                //OSReport("PadGetChatInput %i\n", inputToCheck);
-                input->input = inputToCheck;
-                input->playerIndex = playerIndex;
-                return input;
-            }
+    u8 playerIndex = R13_U8(-0x49B0);
+    HSD_Pad* pad = PadGet(playerIndex, PADGET_ENGINE);
+
+    for(int i=0;i<sizeof(normalInputs) / sizeof(int);i++){
+        int inputToCheck = normalInputs[i];
+        if(pad->down & inputToCheck){
+            //OSReport("PadGetChatInput %i\n", inputToCheck);
+            input->input = inputToCheck;
+            input->playerIndex = playerIndex;
+            return input;
         }
-
-        // skip to next iteration if we should not check for window commands
-        if(!checkForCommands) continue;
-
-        for(int i=0;i<sizeof(windowCommands) / sizeof(int);i++){
-            int inputToCheck = windowCommands[i];
-            if(pad->down & inputToCheck){
-                //OSReport("PadGetChatInput %i\n", inputToCheck);
-                input->input = inputToCheck;
-                input->playerIndex = playerIndex;
-                return input;
-            }
-        }
-        
     }
+
+    // skip to next iteration if we should not check for window commands
+    if(!checkForCommands) return input;
+
+    for(int i=0;i<sizeof(windowCommands) / sizeof(int);i++){
+        int inputToCheck = windowCommands[i];
+        if(pad->down & inputToCheck){
+            //OSReport("PadGetChatInput %i\n", inputToCheck);
+            input->input = inputToCheck;
+            input->playerIndex = playerIndex;
+            return input;
+        }
+    }
+        
 	return input;
 }
 

@@ -4,11 +4,13 @@
 
 #include "../Core/Notifications/notifications.c"
 #include "Chat/chat.c"
+#include "Components/sheik_selector.c"
 
 void UpdateOnlineCSS(){
     if(!IsSlippiOnlineCSS()) return;
     bp();
 
+    InitSheikSelector();
     ListenForNotifications();
     ListenForChatInput();
 }

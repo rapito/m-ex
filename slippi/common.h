@@ -36,4 +36,10 @@ Text* Text_CreateTextWithGX(int SisIndex, int canvasID, u8 gx_link, u8 gx_pri){
     return text;
 }
 
+JOBJ_SetMatFrame(JOBJ* jobj, float frame) {
+    JOBJ_ForEachAnim(jobj, 0x6, 0x400, AOBJ_ReqAnim, 1, frame);
+    JOBJ_AnimAll(jobj);
+    JOBJ_ForEachAnim(jobj, 0x6, 0x400, AOBJ_StopAnim, 6, 0, 0);
+}
+
 #endif SLIPPI_COMMON_H

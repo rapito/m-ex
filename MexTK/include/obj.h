@@ -175,6 +175,21 @@ struct GXList
     GOBJ *gx_camera;     // pointer to the highest priority cobj gobj. they are linked together via the next member.
 };
 
+typedef struct _HSD_TObjTev {
+    u8 color_op;
+    u8 alpha_op;
+    u8 color_bias;
+    u8 alpha_bias;
+    u8 color_scale;
+    u8 alpha_scale;
+    u8 color_clamp;
+    u8 alpha_clamp;
+    u8 color_a, color_b, color_c, color_d;
+    u8 alpha_a, alpha_b, alpha_c, alpha_d;
+    GXColor constant, tev0, tev1;
+    u32 active;
+} HSD_TObjTev;
+
 struct TOBJ
 {
     HSD_Obj parent;
@@ -190,7 +205,11 @@ struct TOBJ
     u8 repeat_s;                      // 0x48
     u8 repeat_t;                      // 0x49
     u16 anim_id;                      // 0x4A
-    u32 flags;                        // 0x4C
+    // u32 flags;                        // 0x4C
+    u8 flag1;                         // 0x4C
+    u8 flag2;                         // 0x4D
+    u8 flag3;                         // 0x4E
+    u8 flag4;                         // 0x4F
     f32 blending;                     // 0x50
     u32 magFilt;                      // 0x54 GXTexFilter
     struct _HSD_ImageDesc *imagedesc; // 0x58
@@ -580,7 +599,7 @@ void *LObj_LoadDesc(void *lobjdesc);
 void *LObj_LoadAll(void **lobjdesc);
 HSD_Fog *Fog_LoadDesc(void *fogdesc);
 DOBJ *JOBJ_GetDObj(JOBJ *jobj);
-void *MOBJ_SetAlpha(DOBJ *dobj);
+void *MOBJ_SetAlpha(DOBJ *dobj, float alpga);
 void MOBJ_SetToonTextureImage(_HSD_ImageDesc *);
 void GObj_CopyGXPri(GOBJ *target, GOBJ *source);
 #endif
