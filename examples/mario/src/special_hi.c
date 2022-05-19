@@ -176,11 +176,11 @@ void SpecialHi_CollisionCallback(GOBJ *gobj)
 	{
 		if ((script_flags->can_control == 0) || (0 <= fighter_data->phys.self_vel.Y))
 		{
-			Fighter_CollAir(gobj);
+			Fighter_CollAir_IgnoreGround(gobj);
 		}
 		else
 		{
-			Fighter_CollAir_GrabLedgeWalljump(gobj, Fighter_Coll_CheckToPass, SpecialHi_OnLand);
+			Fighter_CollAir_GrabFacingLedgeWalljump(gobj, Fighter_Coll_CheckToPass, SpecialHi_OnLand);
 		}
 	}
 	else
@@ -317,11 +317,11 @@ void SpecialAirHi_CollisionCallback(GOBJ *gobj)
 	{
 		if ((script_flags->can_control == 0) || (0 <= fighter_data->phys.self_vel.Y))
 		{
-			Fighter_CollAir(gobj);
+			Fighter_CollAir_IgnoreGround(gobj);
 		}
 		else
 		{
-			Fighter_CollAir_GrabLedgeWalljump(gobj, Fighter_Coll_CheckToPass, SpecialHi_OnLand);
+			Fighter_CollAir_GrabFacingLedgeWalljump(gobj, Fighter_Coll_CheckToPass, SpecialHi_OnLand);
 		}
 	}
 	else

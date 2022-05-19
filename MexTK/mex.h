@@ -5,7 +5,6 @@
 #include "include/datatypes.h"
 
 #include "include/audio.h"
-#include "include/archive.h"
 #include "include/boneset.h"
 #include "include/match.h"
 #include "include/collision.h"
@@ -24,7 +23,6 @@
 #include "include/obj.h"
 #include "include/offsets.h"
 #include "include/preload.h"
-#include "include/result.h"
 #include "include/scene.h"
 #include "include/stage.h"
 #include "include/text.h"

@@ -5,7 +5,7 @@
 backup
 
 # check if over
-  cmpwi  r3,11
+  cmpwi  r3,16
   bge Assert
 
 # get jump table
@@ -22,6 +22,11 @@ bl  MnSlMpIcon
 bl  CostumeSymbol
 bl  GrDesc
 bl  GrExternalLookup
+bl  GrName
+bl  FtName
+bl  FtDat
+bl  FtKindDesc
+bl  FtEmblemLookup
 #*****************************#
 SkipJumpTable:
 #Get effect type
@@ -70,6 +75,31 @@ GrExternalLookup:
   lwz r3,OFST_mexData(rtoc)
   lwz r3,Arch_Map(r3)
   lwz r3,Arch_Map_StageIDs(r3)
+  b Exit
+GrName:
+  lwz r3,OFST_mexData(rtoc)
+  lwz r3,Arch_Map(r3)
+  lwz r3,Arch_Map_StageNames(r3)
+  b Exit
+FtName:
+  lwz r3,OFST_mexData(rtoc)
+  lwz r3,Arch_Fighter(r3)
+  lwz r3,Arch_Fighter_NameText(r3)
+  b Exit
+FtDat:
+  lwz r3,OFST_mexData(rtoc)
+  lwz r3,Arch_Fighter(r3)
+  lwz r3,Arch_Fighter_CharFiles(r3)
+  b Exit
+FtKindDesc:
+  lwz r3,OFST_mexData(rtoc)
+  lwz r3,Arch_Fighter(r3)
+  lwz r3,Arch_Fighter_DefineIDs(r3)
+  b Exit
+FtEmblemLookup:
+  lwz r3,OFST_mexData(rtoc)
+  lwz r3,Arch_Fighter(r3)
+  lwz r3,Arch_Fighter_InsigniaIDs(r3)
   b Exit
 
 #############################################

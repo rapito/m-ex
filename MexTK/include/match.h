@@ -40,6 +40,49 @@ enum MatchState
     MATCHSTATE_EXIT,
 };
 
+enum MatchEndKind
+{
+    MATCHENDKIND_NONE,      // hasn't ended yet?
+    MATCHENDKIND_VSTIME,    // timeout in a VS match
+    MATCHENDKIND_VSGAME,    // successful ending to a VS match
+    MATCHENDKIND_3,         //
+    MATCHENDKIND_1PLOSE,    // used for dying in 1p games
+    MATCHENDKIND_5,         //
+    MATCHENDKIND_1PWIN,     // winning a 1p game
+    MATCHENDKIND_NOCONTEST, //
+    MATCHENDKIND_RETRY,     // stadium retry
+    MATCHENDKIND_OVERRIDE,  // match end was requested by external code
+};
+
+enum MatchPLinks
+{
+    MATCHPLINK_SYS,
+    MATCHPLINK_1,
+    MATCHPLINK_2,
+    MATCHPLINK_LIGHT,
+    MATCHPLINK_ZAKO,
+    MATCHPLINK_MAP,
+    MATCHPLINK_COLL,
+    MATCHPLINK_7,
+    MATCHPLINK_FIGHTER,
+    MATCHPLINK_ITEM,
+    MATCHPLINK_10,
+    MATCHPLINK_EFFECT1,
+    MATCHPLINK_EFFECT2,
+    MATCHPLINK_MAPMISC,
+    MATCHPLINK_MISC,
+    MATCHPLINK_HUD,
+    MATCHPLINK_16,
+    MATCHPLINK_17,
+    MATCHPLINK_MATCHCAM,
+    MATCHPLINK_MISCCAM,
+    MATCHPLINK_HUDCAM,
+    MATCHPLINK_COINCAM,
+    MATCHPLINK_SCREENFLASHCAM,
+    MATCHPLINK_CROWDSFX,
+    MATCHPLINK_DEVTEXT,
+};
+
 /*** Structs ***/
 
 struct MatchInit
@@ -79,7 +122,7 @@ struct MatchInit
     unsigned char unk11 : 1;             // 0x80
     unsigned char isCheckStockSteal : 1; // 0x40
     unsigned char isRunStockLogic : 1;   // 0x20
-    unsigned char unk10 : 5;             // 0x01
+    unsigned char unk1f : 5;             // 0x1f
     //byte 0x5
     unsigned char no_check_end : 1;        // 0x80
     unsigned char isSkipUnkStockCheck : 1; // 0x40
@@ -90,13 +133,13 @@ struct MatchInit
     //byte 0x7
     u8 unk13; // 0xFF
     //byte 0x8
-    u8 isTeams; // 0xFF
+    u8 is_teams; // 0xFF
     //byte 0x9
     u8 use_ko_count; // 0xFF
     //byte 0xA
     u8 unk14; // 0xFF
     //byte 0xB
-    u8 itemFreq; // 0xFF
+    s8 itemFreq; // 0xFF
     //byte 0xC
     u8 unk15; // 0xFF
     //byte 0xD
@@ -148,12 +191,13 @@ struct MatchInit
     int x60;
     //0x64
     int x64;
-*/
+    */
+
     // player data
     PlayerData playerData[6];
 };
 
-struct MatchHUD
+struct MatchHUDElement
 {
     GOBJ *percent;
     GOBJ *insignia;
@@ -167,17 +211,44 @@ struct MatchHUD
     unsigned char x10_2 : 1;      // 0x40 - 0x10
     unsigned char x10_3 : 1;      // 0x20 - 0x10
     unsigned char x10_4 : 1;      // 0x10 - 0x10
-    unsigned char x10_5 : 1;      // 0x08 - 0x10
+    unsigned char is_hidden : 1;  // 0x08 - 0x10
     unsigned char x10_6 : 1;      // 0x04 - 0x10
     unsigned char x10_7 : 1;      // 0x02 - 0x10
     unsigned char x10_8 : 1;      // 0x01 - 0x10
     u8 x11;
     u8 x12;
     u8 x13;
-    float x14[3];
-    float percent_digitpos[4]; // 3 digits and the percent sign
-    int x34[8];
-    JOBJ *x54[5];
+    float x14[3];              // 0x14
+    float percent_digitpos[4]; // 0x20, 3 digits and the percent sign
+    int x30[8];                // 0x30
+    JOBJ *x50[5];              // 0x50
+};
+struct MatchHUDStock
+{
+    GOBJ *gobj;
+    JOBJ *jobj[17];
+    int curr_coins;
+    int curr_stocks;
+};
+struct MatchHUD
+{
+    GOBJ *cam_gobj;   // 0x0
+    GOBJ *light_gobj; // 0x4
+    int x8;           // 0x8
+    // the following positions are derived from the ScInfDmg_scene_data symbol in IfAll
+    Vec3 timer_pos;                  // 0xc
+    Vec3 player_hud_pos[6];          // 0x18
+    Vec3 joint8_pos[3];              // 0x60
+    Vec3 joint11_pos[2];             // 0x84
+    u8 x9c[0x54];                    // 0x9c
+    MatchHUDElement element_data[6]; // 0xF0
+    JOBJSet dmgnum_jobjset;          // 0x348
+    JOBJSet dmgmark_jobjset;         // 0x358
+    JOBJSet *ScnInfStc_scene_models; // 0x368
+    u8 x36c[52];                     // 0x36c
+    JOBJSet *stock_jobjset;          // 0x3a0
+    JOBJSet *kocount_jobjset;        // 0x3a4
+    MatchHUDStock stock[6];          //
 };
 
 struct CameraBox
@@ -198,43 +269,28 @@ struct CameraBox
     float boundright_proj;  // 0x44
     float boundtop_proj;    // 0x48
     float boundbottom_proj; // 0x4c
+    float x50;              // 0x50
 };
 
 struct MatchCamera
 {
-    int x0;                       // 0x0
+    GOBJ *gobj;                   // 0x0
     int cam_kind;                 // 0x4
     GXColor erase_color;          // 0x8
     float zoom;                   // 0xc
     float dist_to_bg;             // 0x10
-    int x14;                      // 0x14
-    int x18;                      // 0x18
-    int x1c;                      // 0x1c
-    int x20;                      // 0x20
-    int x24;                      // 0x24
-    int x28;                      // 0x28
-    int x2c;                      // 0x2c
-    int x30;                      // 0x30
-    int x34;                      // 0x34
-    int x38;                      // 0x38
-    int x3c;                      // 0x3c
-    int x40;                      // 0x40
-    int x44;                      // 0x44
-    int x48;                      // 0x48
-    int x4c;                      // 0x4c
-    int x50;                      // 0x50
-    int x54;                      // 0x54
-    int x58;                      // 0x58
-    int x5c;                      // 0x5c
-    int x60;                      // 0x60
-    int x64;                      // 0x64
-    int x68;                      // 0x68
-    int x6c;                      // 0x6c
-    int x70;                      // 0x70
-    int x74;                      // 0x74
-    int x78;                      // 0x78
-    int x7c;                      // 0x7c
-    int x80;                      // 0x80
+    Vec3 x14;                     // 0x14
+    Vec3 x20;                     // 0x20
+    Vec3 x2c;                     // 0x2c
+    Vec3 x38;                     // 0x38
+    float x44;                    // 0x44
+    float x48;                    // 0x48
+    Vec3 x4c;                     // 0x4c
+    Vec3 x58;                     // 0x58
+    Vec3 x64;                     // 0x64
+    Vec3 x70;                     // 0x70
+    float x7c;                    // 0x7c
+    float x80;                    // 0x80
     int x84;                      // 0x84
     int x88;                      // 0x88
     int x8c;                      // 0x8c
@@ -495,151 +551,100 @@ struct ExclamData
 
 struct PlayerStandings
 {
-    u8 pkind;       // 0x58
-    u8 ckind;       // 0x59
-    u8 x5c;         // 0x5c
-    u8 placement;   // 0x5c, (0 = 1st, 1 = 2nd, etc)
-    u8 x5d;         // 0x5d, placement again?
-    u8 team;        // 0x5e, index of this players team
-    int x60;        // 0x60
-    int x64;        // 0x64
-    int x68;        // 0x68
-    int x6c;        // 0x6c
-    int x70;        // 0x70
-    int x74;        // 0x74
-    int x78;        // 0x78
-    int x7c;        // 0x7c
-    int x80;        // 0x80
-    int death_time; // 0x84, Time Player Lost All Stocks (Seconds), is 0x1 if player was the last survivor.
-    int x88;        // 0x88
-    int x8c;        // 0x8c
-    int x90;        // 0x90
-    int x94;        // 0x94
-    int x98;        // 0x98
-    int x9c;        // 0x9c
-    int xa0;        // 0xa0
-    int xa4;        // 0xa4
-    int xa8;        // 0xa8
-    int xac;        // 0xac
-    int xb0;        // 0xb0
-    int xb4;        // 0xb4
-    int xb8;        // 0xb8
-    int xbc;        // 0xbc
-    int xc0;        // 0xc0
-    int xc4;        // 0xc4
-    int xc8;        // 0xc8
-    int xcc;        // 0xcc
-    int xd0;        // 0xd0
-    int xd4;        // 0xd4
-    int xd8;        // 0xd8
-    int xdc;        // 0xdc
-    int xe0;        // 0xe0
-    int xe4;        // 0xe4
-    int xe8;        // 0xe8
-    int xec;        // 0xec
-    int xf0;        // 0xf0
-    int xf4;        // 0xf4
-    int xf8;        // 0xf8
-    int xfc;        // 0xfc
+    u8 pkind;          // 0x58
+    u8 ckind;          // 0x59
+    u8 ftkind;         // 0x5a
+    u8 costume : 6;    // 0x5b costume id
+    u8 is_rumble : 1;  // 0x5b rumble flag
+    u8 is_stamina : 1; // 0x5b stamina flag
+    u8 nametag;        // 0x5c
+    u8 placement;      // 0x5d, (0 = 1st, 1 = 2nd, etc)
+    u8 x5e;            // 0x5e, placement again?
+    u8 team;           // 0x5f, index of this players team
+    u8 stock_num;      // 0x60
+    u8 hp;             // 0x61
+    u8 sd_num;         // 0x62
+    u8 fall_num;       // 0x63
+    u16 dmg_num;       // 0x64
+    u16 xe;            // 0x66
+    int x68;           // 0x68
+    int x6c;           // 0x6c
+    int x70;           // 0x70
+    int coins;         // 0x74
+    int x78;           // 0x78
+    int x7c;           // 0x7c
+    int frames_alive;  // 0x80
+    int death_time;    // 0x84, Time Player Lost All Stocks (Seconds), is 0x1 if player was the last survivor.
+    int x88;           // 0x88
+    int x8c;           // 0x8c
+    int hits_landed;   // 0x90
+    int attack_num;    // 0x94
+    int x98;           // 0x98
+    int x9c;           // 0x9c
+    int xa0;           // 0xa0
+    int xa4;           // 0xa4
+    int xa8;           // 0xa8
+    int xac;           // 0xac
+    int xb0;           // 0xb0
+    int xb4;           // 0xb4
+    int xb8;           // 0xb8
+    int xbc;           // 0xbc
+    int xc0;           // 0xc0
+    int xc4;           // 0xc4
+    int xc8;           // 0xc8
+    int xcc;           // 0xcc
+    int xd0;           // 0xd0
+    int xd4;           // 0xd4
+    int xd8;           // 0xd8
+    int xdc;           // 0xdc
+    int xe0;           // 0xe0
+    int ledgegrab_num; // 0xe4
+    int xe8;           // 0xe8
+    int xec;           // 0xec
+    int xf0;           // 0xf0
+    int xf4;           // 0xf4
+    int xf8;           // 0xf8
+    int xfc;           // 0xfc
 };
+
+struct TeamStandings
+{
+    int death_time; // 0x0, does this contain stocks for the winning team?
+    int x4;         // 0x4
+    u8 placement;   // 0x8
+    u8 x9;          // 0x9
+    u8 xa;          // 0xa
+    u8 xb;          // 0xb
+};
+
 struct MatchStandings
 {
-    int x24c; // 0x24c
-    int x250; // 0x250
-    int x254; // 0x254
-    int x258; // 0x258
-    int x25c; // 0x25c
-    int x260; // 0x260
-    int x264; // 0x264
-    int x268; // 0x268
-    int x26c; // 0x26c
-    int x270; // 0x270
-    int x274; // 0x274
-    int x278; // 0x278
-    int x27c; // 0x27c
-    int x280; // 0x280
-    int x284; // 0x284
-    int x288; // 0x288
-    int x28c; // 0x28c
-    int x290; // 0x290
-    int x294; // 0x294
-    int x298; // 0x298
-    int x29c; // 0x29c
-    int x2a0; // 0x2a0
-    PlayerStandings ply_standings[4];
-    int x544; // 0x544
-    int x548; // 0x548
-    int x54c; // 0x54c
-    int x550; // 0x550
-    int x554; // 0x554
-    int x558; // 0x558
-    int x55c; // 0x55c
-    int x560; // 0x560
-    int x564; // 0x564
-    int x568; // 0x568
-    int x56c; // 0x56c
-    int x570; // 0x570
-    int x574; // 0x574
-    int x578; // 0x578
-    int x57c; // 0x57c
-    int x580; // 0x580
-    int x584; // 0x584
-    int x588; // 0x588
-    int x58c; // 0x58c
-    int x590; // 0x590
-    int x594; // 0x594
-    int x598; // 0x598
-    int x59c; // 0x59c
-    int x5a0; // 0x5a0
-    int x5a4; // 0x5a4
-    int x5a8; // 0x5a8
-    int x5ac; // 0x5ac
-    int x5b0; // 0x5b0
-    int x5b4; // 0x5b4
-    int x5b8; // 0x5b8
-    int x5bc; // 0x5bc
-    int x5c0; // 0x5c0
-    int x5c4; // 0x5c4
-    int x5c8; // 0x5c8
-    int x5cc; // 0x5cc
-    int x5d0; // 0x5d0
-    int x5d4; // 0x5d4
-    int x5d8; // 0x5d8
-    int x5dc; // 0x5dc
-    int x5e0; // 0x5e0
-    int x5e4; // 0x5e4
-    int x5e8; // 0x5e8
-    int x5ec; // 0x5ec
-    int x5f0; // 0x5f0
-    int x5f4; // 0x5f4
-    int x5f8; // 0x5f8
-    int x5fc; // 0x5fc
-    int x600; // 0x600
-    int x604; // 0x604
-    int x608; // 0x608
-    int x60c; // 0x60c
-    int x610; // 0x610
-    int x614; // 0x614
-    int x618; // 0x618
-    int x61c; // 0x61c
-    int x620; // 0x620
-    int x624; // 0x624
-    int x628; // 0x628
-    int x62c; // 0x62c
-    int x630; // 0x630
-    int x634; // 0x634
-    int x638; // 0x638
+    int x0;                           // 0x24c
+    u8 end_kind;                      // 0x250
+    u8 x5;                            // 0x251
+    u8 is_teams;                      // 0x252
+    int time_frames;                  // 0x254 how many frames passed in the match
+    u8 xc;                            // 0x258
+    u8 winner_num;                    // 0x259 is greater than 1 when a tie occurs
+    u8 placings[4];                   // 0x25a - 0x25d, array of player indices in order of placement
+    int x14;                          // 0x260
+    int x18;                          // 0x264
+    TeamStandings team_standings[5];  // 0x268
+    PlayerStandings ply_standings[6]; // 0x2a4
 };
 
 struct Match // static match struct @ 8046b6a0
 {
     u8 state;                 // 0x0
     u8 pauser;                // 0x1
-    int x4;                   // 0x4
-    int end_kind;             // 0x8
+    u8 x4;                    // 0x4
+    u8 x5;                    // 0x5
+    u8 request_match_end;     // 0x6, will override match end logic and set kind to
+    u8 x7;                    // 0x7
+    u8 end_kind;              // 0x8
     int xc;                   // 0xc
-    int x10;                  // 0x10
-    int x14;                  // 0x14
+    int end_sfx_announcer;    // 0x10
+    int end_sfx_crowd;        // 0x14
     int x18;                  // 0x18
     int x1c;                  // 0x1c
     int x20;                  // 0x20
@@ -782,28 +787,6 @@ struct Match // static match struct @ 8046b6a0
     int x244;                 // 0x244
     int x248;                 // 0x248
     MatchStandings standings; // 0x24c
-    int x63c;                 // 0x63c
-    int x640;                 // 0x640
-    int x644;                 // 0x644
-    int x648;                 // 0x648
-    int x64c;                 // 0x64c
-    int x650;                 // 0x650
-    int x654;                 // 0x654
-    int x658;                 // 0x658
-    int x65c;                 // 0x65c
-    int x660;                 // 0x660
-    int x664;                 // 0x664
-    int x668;                 // 0x668
-    int x66c;                 // 0x66c
-    int x670;                 // 0x670
-    int x674;                 // 0x674
-    int x678;                 // 0x678
-    int x67c;                 // 0x67c
-    int x680;                 // 0x680
-    int x684;                 // 0x684
-    int x688;                 // 0x688
-    int x68c;                 // 0x68c
-    int x690;                 // 0x690
     int x694;                 // 0x694
     int x698;                 // 0x698
     int x69c;                 // 0x69c
@@ -2742,12 +2725,17 @@ struct Match // static match struct @ 8046b6a0
 
 Match *stc_match = 0x8046b6a0;
 MatchCamera *stc_matchcam = 0x80452c68;
-MatchHUD *stc_matchhud = 0x804a10c8;
+MatchHUD *stc_matchhud = 0x804a0fd8; // 0x804a10c8;
 MatchOffscreen *stc_match_offscreen = 0x804a1df0;
 ExclamData *stc_exclam_data = 0x803f9628; // 8 of these
+HSD_Archive **stc_ifall_archive = 0x804d6d5c;
+int *stc_match_canvas = 0x804a1f58;
+GOBJ **stc_match_screencolor_gobj = 0x804d63e0;
+u8 *stc_hud_is_hidden = 0x804D6D6C;
+float *stc_match_fgm_volume = R13 + -0x7dbc;
+float *stc_match_bgm_volume = R13 + -0x7db8;
 
 /*** Functions ***/
-
 CameraBox *CameraBox_Alloc();
 void CameraBox_Destroy(CameraBox *cam);
 void KOCount_Init(int updateCallback);
@@ -2791,4 +2779,5 @@ COBJ *Match_GetCObj();
 float Match_GetDamageRatio();
 void Match_CreateGOExclamation();
 void Match_EnableFighterInputs();
+void Match_ApplyScreenColAnim(int colanim_index, int unk);
 #endif

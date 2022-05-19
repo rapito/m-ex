@@ -22,7 +22,7 @@ backup
   mflr  r3
   branchl r12,0x800163d8
   addi  REG_FileSize,r3,0
-#ALlign
+#Align
   addi  REG_FileSize,REG_FileSize,31
   rlwinm	REG_FileSize, REG_FileSize, 0, 0, 26
 #Create heap of this size
@@ -225,6 +225,10 @@ rtocOffsets:
   .hword Arch_FighterFunc,Arch_FighterFunc_OnItemPickup,-1
   .hword Arch_FighterFunc,Arch_FighterFunc_OnItemPickup2,-1
   .hword Arch_FighterFunc,Arch_FighterFunc_OnItemRelease,-1
+  .hword Arch_FighterFunc,Arch_FighterFunc_onIntroL,-1
+  .hword Arch_FighterFunc,Arch_FighterFunc_onIntroR,-1
+  .hword Arch_FighterFunc,Arch_FighterFunc_onTaunt,-1
+  .hword Arch_FighterFunc,Arch_FighterFunc_onCatch,-1
   .hword Arch_Fighter,Arch_Fighter_BGM,-1
   .hword Arch_Fighter,Arch_Fighter_ViWaitFileNames,-1
   .hword Arch_Scene,Scene_Major,-1

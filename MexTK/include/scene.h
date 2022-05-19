@@ -4,7 +4,6 @@
 #include "structs.h"
 #include "datatypes.h"
 #include "match.h"
-#include "result.h"
 
 // Scene Enums
 enum HEAP_KIND
@@ -146,11 +145,11 @@ struct SceneInfo
 
 struct ScDataVS
 {
-    u8 x8;
-    u8 x9;
-    u8 xa;
-    int xc;
-    MatchInit match_init;
+    u8 x8;                // 0x0
+    u8 x9;                // 0x1
+    u8 xa;                // 0x2
+    int xc;               // 0x4
+    MatchInit match_init; // 0x8
 };
 
 struct ScDataRst
@@ -158,8 +157,8 @@ struct ScDataRst
     int x0;
     int x4;
     int x8;
-    int xc;
-    RstInit rst_init;
+    MatchStandings match_standings; // 0xC
+    u8 unk[0x2278];                 // 0x?
 };
 
 /*** Static Variables ***/

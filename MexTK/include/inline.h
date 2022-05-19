@@ -16,19 +16,17 @@
 float fabs(float x)
 {
     if (x < 0)
-    {
         return -x;
-    }
-    return x;
+    else
+        return x;
 }
 
 int abs(int x)
 {
     if (x < 0)
-    {
         return -x;
-    }
-    return x;
+    else
+        return x;
 }
 
 void enterKnockback(GOBJ *fighter, int angle, float mag)
@@ -36,14 +34,14 @@ void enterKnockback(GOBJ *fighter, int angle, float mag)
     FighterData *fighter_data = ((FighterData *)fighter->userdata);
 
     // store damage variables
-    fighter_data->dmg.force_applied = mag;
-    fighter_data->dmg.kb_angle = angle;
-    fighter_data->dmg.direction = fighter_data->facing_direction;
-    fighter_data->dmg.damaged_hurtbox = 0;
+    fighter_data->dmg.hit_log.force_applied = mag;
+    fighter_data->dmg.hit_log.kb_angle = angle;
+    fighter_data->dmg.hit_log.direction = fighter_data->facing_direction;
+    fighter_data->dmg.hit_log.damaged_hurtbox = 0;
     fighter_data->dmg.applied = 0;
-    fighter_data->dmg.collpos.X = fighter_data->phys.pos.X;
-    fighter_data->dmg.collpos.Y = fighter_data->phys.pos.Y;
-    fighter_data->dmg.collpos.Z = fighter_data->phys.pos.Z;
+    fighter_data->dmg.hit_log.collpos.X = fighter_data->phys.pos.X;
+    fighter_data->dmg.hit_log.collpos.Y = fighter_data->phys.pos.Y;
+    fighter_data->dmg.hit_log.collpos.Z = fighter_data->phys.pos.Z;
 
     Fighter_EnterDamageState(fighter, -1, 0);
 
@@ -303,6 +301,8 @@ float Math_Vec2Angle(Vec2 *a, Vec2 *b)
 
     return angle;
 }
+
+float pow (float, float);
 
 float Math_Vec2Distance(Vec2 *a, Vec2 *b)
 {

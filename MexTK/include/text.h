@@ -65,9 +65,9 @@ struct Text
 
 /*** Functions ***/
 
-int Text_CreateCanvas(int unk, int no_create_cam_gobj, int text_gobjkind, int text_gobjsubclass, int text_gobjflags, int text_gxlink, int text_gxpri, int cobj_gxpri); // the optional gobj and cobj_gxlink are used to create a cobj as well. set gobj
-Text *Text_CreateText(int SisIndex, int canvasID);
-Text *Text_CreateText2(int SisIndex, int canvasID, float pos_x, float pos_y, float pos_z, float limit_x, float limit_y);
+int Text_CreateCanvas(int sis_id, int no_create_cam_gobj, int text_gobjkind, int text_gobjsubclass, int text_gobjflags, int text_gxlink, int text_gxpri, int cobj_gxpri); // the optional gobj and cobj_gxlink are used to create a cobj as well. set gobj
+Text *Text_CreateText(int sis_id, int canvasID);
+Text *Text_CreateText2(int sis_id, int canvasID, float pos_x, float pos_y, float pos_z, float limit_x, float limit_y);
 void Text_Destroy(Text *text);
 int Text_AddSubtext(Text *text, float xPos, float yPos, char *string, ...);
 void Text_SetScale(Text *text, int subtext, float x, float y);
@@ -82,6 +82,7 @@ void Text_GX(GOBJ *gobj, int pass);
 void Text_LoadSdFile(int index, char *filename, char *symbol);
 void Text_SetSisText(Text *text, int text_index);
 void Text_DestroySisCanvas(int canvas_id);
+void Text_InitSisHeap();
 
 /*** Variables ***/
 // Text data
@@ -97,7 +98,7 @@ TextAllocInfo **stc_textobj_first = R13 + (-0x3d28);
 TextAllocInfo **stc_textcanvas_first = R13 + (-0x3d24);
 
 // Sis Library
-ArchiveInfo **stc_sis_archives = 0x804d1110; // array of sis file archive pointers
+HSD_Archive **stc_sis_archives = 0x804d1110; // array of sis file archive pointers
 void **stc_sis_data = 0x804d1124;            // array of loaded sis data
 
 #endif

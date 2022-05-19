@@ -1,3 +1,5 @@
+.set debug, 0
+
 #Constants
 .set  PersonalEffectStart,5000  # used for stage effects, need to rework this?
 .set  EffMdlStart,5000
@@ -215,7 +217,7 @@
 .set  Arch_FighterFunc,0xC
   .set  Arch_FighterFunc_onLoad,0x0
   .set  Arch_FighterFunc_onDeath,0x4
-  .set  Arch_FighterFunc_onUnknown,0x8
+  .set  Arch_FighterFunc_onDestroy,0x8
   .set  Arch_FighterFunc_MoveLogic,0xC
   .set  Arch_FighterFunc_SpecialN,0x10
   .set  Arch_FighterFunc_SpecialNAir,0x14
@@ -254,15 +256,16 @@
   .set  Arch_FighterFunc_onGetExtResultAnim,0x98
   .set  Arch_FighterFunc_onIndexExtResultAnim,0x9C
   .set  Arch_FighterFunc_MoveLogicDemo,0xA0
-  .set  Arch_FighterFunc_onThrowF,0xA4
-  .set  Arch_FighterFunc_onThrowB,0xA8
-  .set  Arch_FighterFunc_onThrowHi,0xAC
-  .set  Arch_FighterFunc_onThrowLw,0xB0
+  .set  Arch_FighterFunc_onIntroL,0xA4
+  .set  Arch_FighterFunc_onIntroR,0xA8
+  .set  Arch_FighterFunc_onTaunt,0xAC
+  .set  Arch_FighterFunc_onCatch,0xB0
   .set  Arch_FighterFunc_GetTrailData,0xB4
 .set  Arch_FGM,0x10
   .set  Arch_FGM_Files,0x0
   .set  Arch_FGM_Flags,0x4
   .set  Arch_FGM_LookupTable,0x8
+    .set  FGM_LookupTable_Stride,0x4
   .set  Arch_FGM_RuntimeStruct,0xC
     .set  Arch_SSMRuntimeStruct_Header,0x0
     .set  Arch_SSMRuntimeStruct_ToLoadOrig,0x4
@@ -313,6 +316,7 @@
   .set  Arch_Kirby_OnHit,0x10
   .set  Arch_Kirby_InitItem,0x14
   .set  Arch_Kirby_MoveLogicRuntime,0x18
+  .set  Arch_KirbyFunction_OnFrameRuntime,0x1C
 .set  Arch_Map,0x28
   .set  Arch_Map_StageIDs,0x0
   .set  Arch_Map_Audio,0x4
@@ -381,7 +385,11 @@
 .set  OFST_FighterOnItemPickup,0xC0
 .set  OFST_FighterOnItemPickup2,0xC4
 .set  OFST_FighterOnItemRelease,0xC8
-.set  OFST_FighterBGM, OFST_FighterOnItemRelease + 0x4
+.set  OFST_FighterOnIntroL, OFST_FighterOnItemRelease + 0x4
+.set  OFST_FighterOnIntroR, OFST_FighterOnIntroL + 0x4
+.set  OFST_FighterOnTaunt, OFST_FighterOnIntroR + 0x4
+.set  OFST_FighterOnCatch, OFST_FighterOnTaunt + 0x4
+.set  OFST_FighterBGM, OFST_FighterOnCatch + 0x4
 .set  OFST_FighterViWaitFileNames, OFST_FighterBGM + 0x4
 .set  OFST_MajorScenes, OFST_FighterViWaitFileNames + 0x4
 .set  OFST_MinorScenes, OFST_MajorScenes + 0x4
@@ -435,12 +443,8 @@
 .set  OFST_HeapRuntime,OFST_EasterEgg + 0x8
 
 
-# Fighter Data Sizes
-.set  FighterDataOrigSize, 0x23ec
-.set  MEX_FighterDataSize, 0x10       # mex needs additional X bytes
-.set  FighterDataTotalSize, FighterDataOrigSize + MEX_FighterDataSize
-
-# Fighter Data Start
+# Fighter Data
+.set FighterDataOrigSize, 0x23ec
 .set FighterDataStart, 0x0
 .set MEX_FighterDataStart, FighterDataStart + FighterDataOrigSize
 
@@ -453,12 +457,14 @@
 .set  MEX_align, MEX_UCF2fX + 0x1   #1 byte
 .set  MEX_FtModelAdd_num, MEX_align + 0x1   #4 bytes
 .set  MEX_FtModelAdd_ptr, MEX_FtModelAdd_num + 0x4   #4 bytes
+.set  MEX_FighterDataEnd, MEX_FtModelAdd_ptr + 0x4
 
+# Total Fighter Data Size
+.set  FighterDataTotalSize, MEX_FighterDataEnd + 32 # adding 32 bytes because theres mem releated bug i cant find :(
 
 # Item Data Sizes
 .set  ItemDataOrigSize, 0xfcc
 .set  MEX_ItemDataSize, 0x4       # mex needs additional X bytes
-.set  ItemDataTotalSize, ItemDataOrigSize + MEX_ItemDataSize
 
 # Fighter Data Start
 .set ItemDataStart, 0x0
@@ -467,7 +473,10 @@
 # Item Data Vairables
 #MEX
 .set  MEX_OrigOwner, MEX_ItemDataStart + 0x0  #4 bytes
+.set  MEX_ItemDataEnd, MEX_OrigOwner + 0x4
 
+# Total Item Data Size
+.set  ItemDataTotalSize, MEX_ItemDataEnd
 
 /*
 #SSM Struct Offsets

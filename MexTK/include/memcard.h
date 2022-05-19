@@ -8,18 +8,12 @@
 #define MEMCARD_BANNER_SIZE 0x1800
 #define MEMCARD_ICON_SIZE 0x400
 
-/*** Memcard Library ***/
-void Memcard_InitWorkArea();
-void Memcard_LoadAssets(int unk);
-Rules1 *Memcard_GetRules1();
-void Memcard_InitSnapshotList(void *snap_data, void *snap_list);
-void Memcard_UpdateSnapshotList(int slot);
-void Memcard_CreateSnapshot(int slot, char *save_id, MemcardSave *memcard_save, MemcardUnk *memcard_unk, char *file_name, _HSD_ImageDesc *banner, _HSD_ImageDesc *icon, int unk);
-void Memcard_DeleteSnapshot(int slot, int index);
-void Memcard_LoadSnapshot(int slot, char *save_id, MemcardSave *memcard_save, char *file_name, _HSD_ImageDesc *banner, _HSD_ImageDesc *icon, int unk);
-int Memcard_CheckStatus(); // returns 11 when operation in effect
-void Memcard_RemovedCallback();
-void Memcard_Deobfuscate(void *data, int size);
+/*** Enums ***/
+enum LanguageKind
+{
+    LANG_JPN,
+    LANG_USA,
+};
 
 /*** Structs ***/
 struct Memcard
@@ -356,7 +350,9 @@ struct Memcard
     int unk329;            //0x524
     int unk330;            //0x528
     int unk331;            //0x52C
-    CSSBackup EventBackup; //0x530
+    u8 fighter_prev;       //0x530, not really sure, written to @ 801bbef8 and 801bb1d0
+    u8 x531;               //0x531
+    CSSBackup EventBackup; //0x532
     int unk335;            //0x53C
     int unk336;            //0x540
     int unk337;            //0x544
@@ -2099,6 +2095,14 @@ struct MemSnapIconData
     _HSD_ImageDesc *icon;
 };
 
+struct MemSaveIconData
+{
+    _HSD_ImageDesc *banner;
+    _HSD_ImageDesc *icon;
+    _HSD_ImageDesc *all_banner; // unlocked all
+    _HSD_ImageDesc *all_icon;   // unlocked all
+};
+
 struct MemcardSave
 {
     int size;   // size of the data, only used when writing to the card
@@ -2658,6 +2662,31 @@ struct MemcardWork
     int x8a4;                    // 0x8a4
     int x8a8;                    // 0x8a8
     int is_done;                 // 0x8ac. operation callback sets this to 1 when the operation finishes
+    // NOTE: i dont think anything past this is actually part of this struct
+    int x8b0;                        // 0x8b0
+    int x8b4;                        // 0x8b4
+    int x8b8;                        // 0x8b8
+    int x8bc;                        // 0x8bc
+    int x8c0;                        // 0x8c0
+    int x8c4;                        // 0x8c4
+    int x8c8;                        // 0x8c8
+    int x8cc;                        // 0x8cc
+    int x8d0;                        // 0x8d0
+    int x8d4;                        // 0x8d4
+    int x8d8;                        // 0x8d8
+    int x8dc;                        // 0x8dc
+    int x8e0;                        // 0x8e0
+    int x8e4;                        // 0x8e4
+    int x8e8;                        // 0x8e8
+    int x8ec;                        // 0x8ec
+    int x8f0;                        // 0x8f0
+    int x8f4;                        // 0x8f4
+    int x8f8;                        // 0x8f8
+    int x8fc;                        // 0x8fc
+    int x900;                        // 0x900
+    int x904;                        // 0x904
+    int x908;                        // 0x908
+    MemSaveIconData *save_icon_data; // 0x90C
 };
 
 struct MemcardUnk
@@ -2677,69 +2706,79 @@ struct MemcardUnk
 
 struct MemcardInfo
 {
-    void *snap_data;            // 0x0 (should be 256,064 bytes)
-    char file_name[32];         // should end with spaces
-    char file_desc[32];         // should end with spaces
-    MemSnapIconData *icon_data; // 0x44
-    SnapshotList *snap_list;    // 0x48 (should be 2112 bytes) points to an allocation where info on the snapshots present on slot A exists
-    int memcard_probe;          // 0x4c 1 == is present. is updated every controller poll
-    int x50;                    // 0x50
-    int x54;                    // 0x54
-    int x58;                    // 0x58
-    int x5c;                    // 0x5c
-    int x60;                    // 0x60
-    int x64;                    // 0x64
-    int x68;                    // 0x68
-    int x6c;                    // 0x6c
-    int x70;                    // 0x70
-    int x74;                    // 0x74
-    int x78;                    // 0x78
-    int x7c;                    // 0x7c
-    int x80;                    // 0x80
-    int x84;                    // 0x84
-    int x88;                    // 0x88
-    int x8c;                    // 0x8c
-    int x90;                    // 0x90
-    int x94;                    // 0x94
-    int x98;                    // 0x98
-    int x9c;                    // 0x9c
-    int xa0;                    // 0xa0
-    int xa4;                    // 0xa4
-    int xa8;                    // 0xa8
-    int xac;                    // 0xac
-    int xb0;                    // 0xb0
-    int xb4;                    // 0xb4
-    int xb8;                    // 0xb8
-    int xbc;                    // 0xbc
-    int xc0;                    // 0xc0
-    int xc4;                    // 0xc4
-    int xc8;                    // 0xc8
-    int xcc;                    // 0xcc
-    int xd0;                    // 0xd0
-    int xd4;                    // 0xd4
-    int xd8;                    // 0xd8
-    int xdc;                    // 0xdc
-    int xe0;                    // 0xe0
-    int xe4;                    // 0xe4
-    int xe8;                    // 0xe8
-    int xec;                    // 0xec
+    void *snap_data;                 // 0x0 (should be 256,064 bytes)
+    char file_name[32];              // should end with spaces
+    char file_desc[32];              // should end with spaces
+    MemSnapIconData *snap_icon_data; // 0x44
+    SnapshotList *snap_list;         // 0x48 (should be 2112 bytes) points to an allocation where info on the snapshots present on slot A exists
+    int memcard_probe;               // 0x4c 1 == is present. is updated every controller poll
+    int x50;                         // 0x50
+    int x54;                         // 0x54
+    int x58;                         // 0x58
+    int x5c;                         // 0x5c
+    int x60;                         // 0x60
+    int x64;                         // 0x64
+    int x68;                         // 0x68
+    int x6c;                         // 0x6c
+    int x70;                         // 0x70
+    int x74;                         // 0x74
+    int x78;                         // 0x78
+    int x7c;                         // 0x7c
+    int x80;                         // 0x80
+    int x84;                         // 0x84
+    int x88;                         // 0x88
+    int x8c;                         // 0x8c
+    int x90;                         // 0x90
+    int x94;                         // 0x94
+    int x98;                         // 0x98
+    int x9c;                         // 0x9c
+    int xa0;                         // 0xa0
+    int xa4;                         // 0xa4
+    int xa8;                         // 0xa8
+    int xac;                         // 0xac
+    int xb0;                         // 0xb0
+    int xb4;                         // 0xb4
+    int xb8;                         // 0xb8
+    int xbc;                         // 0xbc
+    int xc0;                         // 0xc0
+    int xc4;                         // 0xc4
+    int xc8;                         // 0xc8
+    int xcc;                         // 0xcc
+    int xd0;                         // 0xd0
+    int xd4;                         // 0xd4
+    int xd8;                         // 0xd8
+    int xdc;                         // 0xdc
+    int xe0;                         // 0xe0
+    int xe4;                         // 0xe4
+    int xe8;                         // 0xe8
+    int xec;                         // 0xec
 };
 
 struct Rules1
 {
     u8 x0;
     u8 x1;
-    u8 x2;
-    u8 x3;
-    u8 x4;
-    u8 handicap;
-    u8 x6;
-    u8 x7;
-    u8 x8;
-    u8 x9;
-    u8 xa;
-    u8 xb;
-    u8 xc;
+    u8 match_kind;      // 0x2
+    u8 time;            // 0x3
+    u8 stock_num;       // 0x4
+    u8 handicap;        // 0x5
+    u8 dmg_ratio;       // 0x6
+    u8 stage_selection; // 0x7
+    u8 stock_time;      // 0x8
+    u8 friendly_fire;   // 0x9
+    u8 pause;           // 0xa
+    u8 score_display;   // 0xb
+    u8 self_destruct;   // 0xc
+};
+
+struct Rules4
+{
+    u64 x0;          // 0x0
+    u64 item_switch; // 0x8
+    int x10;         // 0x10
+    u8 x14;          // 0x14
+    u8 x15;          // 0x15
+    u8 language;     // 0x16
 };
 
 /*** Static Variables ***/
@@ -2751,5 +2790,21 @@ int *stc_memcard_block_curr = R13 + (-0x3d20);
 int *stc_memcard_block_last = R13 + (-0x3d1c);
 int *stc_memcard_write_status = 0x804d1138;
 int *stc_CardXferredBytes = R13 + (-0x3D14);
+
+/*** Memcard Library ***/
+void Memcard_InitWorkArea();
+void Memcard_LoadAssets(int unk);
+Rules1 *Memcard_GetRules1();
+Rules4 *Memcard_GetRules4();
+void Memcard_InitSnapshotList(void *snap_data, void *snap_list);
+void Memcard_UpdateSnapshotList(int slot);
+void Memcard_ReqSaveCreate(int slot, char *file_name, MemcardSave *memcard_save, MemcardUnk *memcard_unk, char *save_name, _HSD_ImageDesc *banner, _HSD_ImageDesc *icon, int unk);
+void Memcard_DeleteSnapshot(int slot, int index);
+void Memcard_ReqSaveLoad(int slot, char *file_name, MemcardSave *memcard_save, char *save_name, _HSD_ImageDesc *banner, _HSD_ImageDesc *icon, int unk);
+void Memcard_ReqSaveUpdate(int slot, char *file_name, MemcardSave *memcard_save, char *save_name, _HSD_ImageDesc *banner, _HSD_ImageDesc *icon, void *r9, void *cb);
+int Memcard_CheckStatus(); // returns 11 when operation in effect
+void Memcard_RemovedCallback();
+void Memcard_Obfuscate(void *data, int size);
+void Memcard_Deobfuscate(void *data, int size);
 
 #endif

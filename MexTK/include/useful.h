@@ -10,6 +10,8 @@
 
 typedef s64 OSTime;
 
+char *strrchr(const char *, int);
+
 // OS Macros
 #define OSRoundUp32B(x) (((u32)(x) + 32 - 1) & ~(32 - 1))
 #define OSRoundDown32B(x) (((u32)(x)) & ~(32 - 1))
@@ -17,10 +19,11 @@ typedef s64 OSTime;
 #define OSRoundDown512B(x) (((u32)(x)) & ~(512 - 1))         // using this for card reads
 #define OSTicksToMilliseconds(ticks) ((ticks) / ((os_info->bus_clock / 4) / 1000))
 #define OSTicksToMicroseconds(ticks) ((ticks) / ((os_info->bus_clock / 4) / 1000000))
-#define BitCheck(num, bit) !!((num) & (1 << (bit))) // returns 0 or 1
-#define BitCheck(num, bit) !!((num) & (1 << (bit))) // returns 0 or 1
+#define MillisecondsSinceTick(ticks) ((float)OSTicksToMicroseconds(OSGetTick() - ticks) / 1000) // returns microseconds between tick given and the current tick
+#define BitCheck(num, bit) !!((num) & (1 << (bit)))                                             // returns 0 or 1
+#define BitCheck(num, bit) !!((num) & (1 << (bit)))                                             // returns 0 or 1
 #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
-#define assert(msg, ...) __assert(__FILENAME__, __LINE__, msg)
+#define assert(msg) __assert(__FILENAME__, __LINE__, msg)
 #define divide_roundup(dividend, divisor) ((dividend + (divisor / 2)) / divisor)
 #define MTXDegToRad(a) ((a)*0.01745329252f)
 #define MTXRadToDeg(a) ((a)*57.29577951f)
@@ -363,17 +366,25 @@ void OSCreateAlarm(OSAlarm *alarm);
 void OSSetPeriodicAlarm(OSAlarm *alarm, OSTime start, OSTime period, void *handler);
 void OSReport(char *, ...);
 void __assert(char *file, int line, char *assert);
+int OSCreateHeap(void *heap_lo, void *heap_hi);
+void OSDestroyHeap(int heap_id);
+void *OSAllocFromHeap(int heap_id);
+void OSFreeToHeap(void *alloc);
 int OSCheckHeap(int heap);
 int OSGetConsoleType();
 int DVDConvertPathToEntrynum(char *file);
+int DVDFastOpen(s32 entrynum, void *dvdFileInfo);
+int DVDConvertPathToEntrynum(char *file);
 int DVDWaitForRead();
-int File_Read(int entrynum, int file_offset, void *buffer, int length, int flags, int r8, void *cb, int r10);
+int File_Read(int entrynum, int file_offset, void *buffer, int read_size, int flags, int unk_index, void *cb, int cb_arg2);
+int File_GetSize(s32 entrynum);
 void memcpy(void *dest, void *source, int size);
 void memset(void *dest, int fill, int size);
 s32 CARDGetStatus(s32 chan, s32 fileNo, CARDStat *stat);
 s32 CARDMountAsync(s32 chan, void *workArea, void *detachCallback, void *attachCallback);
 s32 CARDUnmount(s32 chan);
 s32 CARDOpen(s32 chan, char *fileName, CARDFileInfo *fileInfo);
+s32 CARDFastOpen(s32 chan, s32 fileNo, CARDFileInfo *fileInfo);
 s32 CARDClose(CARDFileInfo *fileInfo);
 s32 CARDProbeEx(s32 chan, s32 *memSize, s32 *sectorSize);
 s32 CARDCheckAsync(s32 chan, void *callback);
@@ -382,7 +393,10 @@ s32 CARDDeleteAsync(s32 chan, char *fileName, void *callback);
 s32 CARDCreateAsync(s32 chan, char *fileName, u32 size, CARDFileInfo *fileInfo, void *callback);
 s32 CARDSetStatusAsync(s32 chan, s32 fileNo, CARDStat *stat, void *callback);
 s32 CARDRead(CARDFileInfo *fileInfo, void *buf, s32 length, s32 offset);
-
+s32 CARDReadAsync(CARDFileInfo *fileInfo, void *buf, s32 length, s32 offset, void *callback);
+s32 CARDWrite(CARDFileInfo *fileInfo, void *buf, s32 length, s32 offset);
+s32 CARDWriteAsync(CARDFileInfo *fileInfo, void *buf, s32 length, s32 offset, void *callback);
+s32 CARDGetXferredBytes(s32 chan);
 void DCFlushRange(void *startAddr, u32 nBytes);
 void DCInvalidateRange(void *startAddr, u32 nBytes);
 void TRK_FlushCache(void *startAddr, u32 nBytes);
@@ -412,17 +426,19 @@ int strncmp(char *str1, char *str2, int size);
 char *strcpy(char *dest, char *src);            // copies the string pointed to, by src to dest.
 char *strncpy(char *dest, char *src, int size); // copies the string pointed to, by src to dest.
 unsigned long int strtoul(const char *str, char **endptr, int base);
-char *strcat(s, append) register char *s;
-register const char *append;
-{
-    char *save = s;
 
-    for (; *s; ++s)
-        ;
-    while (*s++ = *append++)
-        ;
-    return (save);
-}
+// TODO:
+// char *strcat(s, append) register char *s;
+// register const char *append;
+// {
+//     char *save = s;
+
+//     for (; *s; ++s)
+//         ;
+//     while (*s++ = *append++)
+//         ;
+//     return (save);
+// }
 
 int SFX_Play(int sfxID);
 int SFX_PlayRaw(int sfx, int volume, int pan, int unk, int unk2);
@@ -430,7 +446,6 @@ int SFX_PlayCommon(int sfxID);
 int SFX_PlayCrowd(int sfxID);
 void SFX_StopCrowd();
 void SFX_StopAllFighterSFX(FighterData *fighter_data);
-void BGM_Play(int hpsID);
 
 void DevelopMode_ResetCursorXY(DevText *text, int x, int y);
 void Develop_UpdateMatchHotkeys();

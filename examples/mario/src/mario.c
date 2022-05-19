@@ -12,10 +12,7 @@ void OnLoad(GOBJ *gobj)
 	FighterData *fighter_data = gobj->userdata;
 
 	// copy attributes
-	for (int i = 0; i < 0x21; i++)
-	{
-		fighter_data->special_attributes2[i] = fighter_data->ftData->ext_attr[i];
-	}
+	memcpy(fighter_data->special_attributes2, fighter_data->ftData->ext_attr, sizeof(MarioAttr));
 
 	// copy pointer to attributes
 	fighter_data->special_attributes = fighter_data->special_attributes2;
@@ -24,11 +21,11 @@ void OnLoad(GOBJ *gobj)
 	int *fighter_items = fighter_data->ftData->items;
 
 	// init fire ball
-	//Items_StoreItemDataToCharItemTable(fighter_items[0], VANILLA_ITEM_FIREBALL);
+	//Item_StoreItemDataToCharItemTable(fighter_items[0], VANILLA_ITEM_FIREBALL);
 	MEX_IndexFighterItem(fighter_data->kind, fighter_items[MEX_ITEM_FIREBALL], MEX_ITEM_FIREBALL);
 
 	// init cape
-	//Items_StoreItemDataToCharItemTable(fighter_items[2], fighter_data->special_attributes[5]);
+	//Item_StoreItemDataToCharItemTable(fighter_items[2], fighter_data->special_attributes[5]);
 	MEX_IndexFighterItem(fighter_data->kind, fighter_items[MEX_ITEM_CAPE], MEX_ITEM_CAPE);
 }
 ///

@@ -1,14 +1,19 @@
-#To be inserted @ 801b1368
+#To be inserted @ 801b1360
 .include "../../Globals.s"
 .include "../Header.s"
 
-# this injection runs when a non vanilla scene returns to the main menu
+# check for a vanilla scene (use main menu)\
+  branchl r12,0x801a4320
+  cmpwi r3,44
+  ble isVanilla
 
-# use whatever the previous menu and cursor value was
-load  r3,0x804a04f0
-lbz r0,0x0(r3)
-stb r0,0x0(r31)
-lhz r0,0x2(r3)
-stb r0,0x1(r31)
+# this code runs when a non vanilla scene returns to the main menu
+# storing -1 to indicate to "Load MxMn.asm" to adjust this value
+  li r0,-1
+  b Exit
+
+isVanilla:
+# use menu 0 if coming from a vanilla scene
+  li r0,0
 
 Exit:

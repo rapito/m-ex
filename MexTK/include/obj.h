@@ -101,6 +101,51 @@
 #define AOBJ_LOOP (1 << 29)
 #define AOBJ_NO_ANIM (1 << 30)
 
+// LOBJ flags
+#define LOBJ_AMBIENT (0 << 0)
+#define LOBJ_INFINITE (1 << 0)
+#define LOBJ_POINT (2 << 0)
+#define LOBJ_SPOT (3 << 0)
+#define LOBJ_DIFFUSE (1 << 2)
+#define LOBJ_SPECULAR (1 << 3)
+#define LOBJ_ALPHA (1 << 4)
+#define LOBJ_HIDDEN (1 << 5)
+#define LOBJ_RAW_PARAM (1 << 6)
+#define LOBJ_DIFF_DIRTY (1 << 7)
+#define LOBJ_SPEC_DIRTY (1 << 8)
+
+// Macro
+#define JOBJ_PauseOnFrame(jobj, child_index, flags, frame)                    \
+    {                                                                         \
+        JOBJ *this_jobj;                                                      \
+        if (child_index != 0)                                                 \
+            JOBJ_GetChild(jobj, &this_jobj, child_index, -1);                 \
+        else                                                                  \
+            this_jobj = jobj;                                                 \
+        JOBJ_ForEachAnim(this_jobj, 6, flags, AOBJ_ReqAnim, 1, (float)frame); \
+        JOBJ_AnimAll(this_jobj);                                              \
+        JOBJ_ForEachAnim(this_jobj, 6, flags, AOBJ_StopAnim, 6, 0, 0);        \
+    }
+#define JOBJ_PlayOnFrame(jobj, child_index, flags, frame)                     \
+    {                                                                         \
+        JOBJ *this_jobj;                                                      \
+        if (child_index != 0)                                                 \
+            JOBJ_GetChild(jobj, &this_jobj, child_index, -1);                 \
+        else                                                                  \
+            this_jobj = jobj;                                                 \
+        JOBJ_ForEachAnim(this_jobj, 6, flags, AOBJ_ReqAnim, 1, (float)frame); \
+        JOBJ_AnimAll(this_jobj);                                              \
+    }
+#define JOBJ_GetChildPosition(jobj, child_index, pos)         \
+    {                                                         \
+        JOBJ *this_jobj;                                      \
+        if (child_index != 0)                                 \
+            JOBJ_GetChild(jobj, &this_jobj, child_index, -1); \
+        else                                                  \
+            this_jobj = jobj;                                 \
+        JOBJ_GetWorldPosition(this_jobj, 0, pos);             \
+    }
+
 /*** Structs ***/
 
 struct HSD_Obj
@@ -256,6 +301,13 @@ struct JOBJDesc
     struct _HSD_RObjDesc *robjdesc; //0x3C
 };
 
+struct MatAnimJointDesc
+{
+    MatAnimJointDesc *child;
+    MatAnimJointDesc *next;
+    void *matanim;
+};
+
 struct COBJDesc
 {
     char *class_name;                    //0x00
@@ -312,15 +364,15 @@ struct DOBJ
 
 struct JOBJ
 {
-    int hsd_info;     //0x0
-    int class_parent; //0x4
-    JOBJ *sibling;    //0x08
-    JOBJ *parent;     //0x0C
-    JOBJ *child;      //0x10
-    int flags;        //0x14
-    DOBJ *dobj;       //0x18
-    Vec4 rot;         //0x1C 0x20 0x24 0x28
-    Vec3 scale;       //0x2C
+    int hsd_info;     // 0x0
+    int class_parent; // 0x4
+    JOBJ *sibling;    // 0x08
+    JOBJ *parent;     // 0x0C
+    JOBJ *child;      // 0x10
+    int flags;        // 0x14
+    DOBJ *dobj;       // 0x18
+    Vec4 rot;         // 0x1C 0x20 0x24 0x28
+    Vec3 scale;       // 0x2C
     Vec3 trans;       // 0x38
     Mtx rotMtx;       // 0x44
     Vec3 *VEC;        // 0x6C
@@ -447,6 +499,37 @@ struct _HSD_LightAttn
     f32 k2;
 };
 
+struct LObjDesc
+{
+    char *class_name;               //0x00
+    LObjDesc *next;                 //0x04
+    u16 flags;                      //0x08
+    u16 attnflags;                  //0x0A
+    GXColor color;                  //0x0C
+    struct _HSD_WObjDesc *position; //0x10
+    struct _HSD_WObjDesc *interest; //0x14
+    union
+    {
+        void *p;
+        f32 *shininess;
+        void *point;
+        void *spot;
+        void *attn;
+    } u;
+};
+struct LightAnim
+{
+    LightAnim *next;
+    struct _HSD_AObjDesc *aobjdesc;
+    struct _HSD_WObjAnim *position_anim;
+    struct _HSD_WObjAnim *interest_anim;
+};
+struct LightGroup
+{
+    LObjDesc *lobj_desc;
+    LightAnim *anim;
+};
+
 struct LOBJ
 {
     HSD_Obj parent;    //0x00
@@ -465,8 +548,8 @@ struct LOBJ
     } u;
     f32 shininess;
     Vec3 lvec;
-    struct AOBJ *aobj;
-    u32 id; //GXLightID
+    AOBJ *aobj; // 0x48
+    u32 id;     // 0x4c, GXLightID
     //GXLightObj lightobj;      //0x50
     u32 spec_id; //0x90 GXLightID
     //GXLightObj spec_lightobj; //0x94
@@ -493,7 +576,12 @@ struct JOBJSet
 
 /*** Static Variables ***/
 GOBJList **stc_gobj_list = R13 + (-0x3E74);
-u8 *obj_kind = R13 + -(0x3E55);
+GOBJProc **stc_gobjproc_cur = (R13 + -0x3E68);
+u8 *objkind_sobj = R13 + -(0x3D40);
+u8 *objkind_cobj = R13 + -(0x3E55);
+u8 *objkind_lobj = R13 + -(0x3E56);
+u8 *objkind_jobj = R13 + -(0x3E57);
+u8 *objkind_fog = R13 + -(0x3E58);
 
 /*** Functions ***/
 int JOBJ_GetWorldPosition(JOBJ *source, Vec3 *add, Vec3 *dest);
@@ -522,6 +610,7 @@ void JOBJ_ReqAnim(JOBJ *joint, float frame);
 void JOBJ_ReqAnimByFlags(JOBJ *joint, int flags, float frame);
 void JOBJ_ReqAnimAll(JOBJ *joint, float unk);
 void JOBJ_ReqAnimAllByFlags(JOBJ *joint, int flags, float frame);
+float JOBJ_GetJointAnimCurrFrame(JOBJ *joint);
 float JOBJ_GetJointAnimFrameTotal(JOBJ *joint);
 float JOBJ_GetJointAnimNextFrame(JOBJ *joint);
 void JOBJ_SetAllMOBJFlags(JOBJ *joint, int flags);
@@ -537,10 +626,15 @@ void JOBJ_Detach(JOBJ *to_attach);
 void AOBJ_ReqAnim(int *aobj, float unk);
 void AOBJ_StopAnim(AOBJ *aobj);
 void AOBJ_SetRate(AOBJ *aobj, float rate);
+void AOBJ_SetFlags(AOBJ *aobj, int flags);
+void AOBJ_ClearFlags(AOBJ *aobj, int flags);
 void DOBJ_SetFlags(DOBJ *dobj, int flags);
 void DOBJ_ClearFlags(DOBJ *dobj, int flags);
+void DOBJ_AddAnimAll(DOBJ *dobj, void *matanim, void *textureanim);
+COBJ *COBJ_Alloc();
 COBJ *COBJ_LoadDesc(COBJDesc *cobj);
 COBJ *COBJ_LoadDescSetScissor(COBJDesc *cobj);
+void COBJ_Init(COBJ *cobj, COBJDesc *cobj_desc); // re-initializes a live cobj using its descriptor
 void CObjThink_Common(GOBJ *gobj);
 int CObj_SetCurrent(COBJ *cobj);
 void CObj_SetEraseColor(int r, int g, int b, int a);
@@ -550,10 +644,17 @@ void CObj_EndCurrent();
 void CObj_SetOrtho(COBJ *cobj, float top, float bottom, float left, float right);
 void CObj_SetViewport(COBJ *cobj, float left, float right, float top, float bottom);
 void CObj_SetScissor(COBJ *cobj, u16 top, u16 bottom, u16 left, u16 right);
+void CObj_SetEyePosition(COBJ *cobj, Vec3 *pos);
+void CObj_SetInterest(COBJ *cobj, Vec3 *pos);
+void CObj_SetRoll(COBJ *cobj, float roll);
 void CObj_Release(COBJ *cobj);
 void CObj_Destroy(COBJ *cobj);
 COBJ *COBJ_GetCurrent();
-GOBJ *GObj_Create(int type, int subclass, int flags);
+void COBJ_GetEyeVector(COBJ *cobj, Vec3 *eye_vec);
+void COBJ_GetInterest(COBJ *cobj, Vec3 *interest);
+float COBJ_GetEyeDistance(COBJ *cobj);
+void COBJ_GetViewingMtx(COBJ *cobj, Mtx *out);
+GOBJ *GObj_Create(int entity_class, int p_link, int flags);
 void GObj_Destroy(GOBJ *gobj);
 void GObj_AddGXLink(GOBJ *gobj, void *cb, int gx_link, int gx_pri);
 void GObj_DestroyGXLink(GOBJ *gobj);
@@ -566,15 +667,24 @@ void GObj_AddUserData(GOBJ *gobj, int userDataKind, void *destructor, void *user
 void GOBJ_InitCamera(GOBJ *gobj, void *cb, int gx_pri);
 void GObj_Anim(GOBJ *gobj);
 void *GObj_AddRenderObject(GOBJ *gobj, int width, int height);
+void GObj_ProcUnk(GOBJ *gobj);
+void GObj_DestroyByPLink(int p_link);                           // destroys all gobjs with p_link X
+void GObj_DestroyByPLinkRange(int p_link_low, int p_link_high); // destroys all gobjs of p_link_low -> p_link_high
 void GXLink_Common(GOBJ *gobj, int pass);
 int GX_LookupRenderPass(int pass);
 void GXLink_LObj(GOBJ *gobj, int pass);
 void GXLink_Fog(GOBJ *gobj, int pass);
-void *LObj_LoadDesc(void *lobjdesc);
-void *LObj_LoadAll(void **lobjdesc);
+LOBJ *LObj_LoadDesc(void *lobjdesc);
+LOBJ *LObj_LoadAll(void **lobjdesc);
+int LObj_GetPosition(LOBJ *lobj, Vec3 *pos);
+void LObj_SetPosition(LOBJ *lobj, Vec3 *pos);
+int LObj_GetInterest(LOBJ *lobj, Vec3 *pos);
+void LObj_SetInterest(LOBJ *lobj, Vec3 *pos);
+void LObj_ReqAnimAll(LOBJ *lobj, float frame);
+void LObj_AnimAll(LOBJ *lobj);
 HSD_Fog *Fog_LoadDesc(void *fogdesc);
 DOBJ *JOBJ_GetDObj(JOBJ *jobj);
-void *MOBJ_SetAlpha(DOBJ *dobj);
+void *MOBJ_SetAlpha(DOBJ *dobj, float alpha);
 void MOBJ_SetToonTextureImage(_HSD_ImageDesc *);
 void GObj_CopyGXPri(GOBJ *target, GOBJ *source);
 #endif

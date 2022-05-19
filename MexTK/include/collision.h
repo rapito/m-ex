@@ -17,6 +17,15 @@
 #define LINE_WALLRIGHT 4
 #define LINE_WALLLEFT 8
 
+/*** Enums ***/
+enum LineDirection
+{
+    LINEDIR_GROUND = 1 << 0,
+    LINEDIR_CEIL = 1 << 1,
+    LINEDIR_LEFTWALL = 1 << 2,
+    LINEDIR_RIGHTWALL = 1 << 3,
+};
+
 /*** Structs ***/
 
 struct ECBSize
@@ -25,19 +34,6 @@ struct ECBSize
     float botY;
     Vec2 left;
     Vec2 right;
-};
-
-struct DmgHazard
-{
-    int x0;
-    int dmg;
-    int angle;
-    int kb_growth;
-    int x10;
-    int kb_base;
-    int element;
-    int x1c;
-    int sfx;
 };
 
 struct CollData
@@ -98,8 +94,7 @@ struct CollData
     int envFlags;              // 0x134
     int envFlags_prev;         // 0x138
     int x13c;                  // 0x13c
-    int x140;                  // 0x140
-    int x144;                  // 0x144
+    Vec2 coll_pos;             // 0x140, only updates for ceiling and ground?
     int x148;                  // 0x148
     int ground_index;          // 0x14c, ground
     u8 ground_info;            // 0x150
@@ -248,12 +243,15 @@ struct CollDataStage
 };
 
 /*** Functions ***/
+void Coll_CopyPosToECBs(CollData *coll_data, Vec3 *pos);
 void Coll_ECBCurrToPrev(CollData *coll_data);
 void Coll_InitECB(CollData *coll_data);
 void Coll_SetECBScale(CollData *coll_data, float scale1, float scale2, float scale3, float scale4);
 int ECB_CollGround_PassLedge(CollData *ecb, ECBSize *bones); // returns is touching ground bool
+int ECB_CollGround3(CollData *ecb);
 void ECB_CollAir(CollData *ecb, ECBSize *bones);
 int ECB_CollAir2(CollData *ecb);
+int ECB_CollAir3(CollData *ecb);
 int ECB_CollAirCheckLedge(CollData *ecb);
 int ECB_CollGround(CollData *ecb);
 int ECB_StoreLedgeCheckDirection(CollData *ecb, int ledge_check_dir);

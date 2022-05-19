@@ -30,13 +30,17 @@
 
 lwz REG_FighterData,0x2C(REG_PlayerGObj)
 
-# get fighter gobj if item
+# get gobj if item
   lhz r3,0x0(REG_PlayerGObj)
   cmpwi r3,6
   bne NotItem
   lwz r3,0x2C(REG_PlayerGObj)
   lwz r3,MEX_OrigOwner(r3)
+  cmpwi r3,0
+  beq Injection_Exit
   lwz REG_FighterData,0x2C(r3)
+  cmpwi r3,0
+  beq Injection_Exit
 NotItem:
 
 #Check for kirby
@@ -137,7 +141,7 @@ HasMdlEffect:
   lbzx REG_EffectType,r3,REG_EffectIntID
   bl  SkipEffMdlTable
 #*****************************#
-bl  EffMdl_Particle # will be removed
+# bl  EffMdl_Particle # will be removed
 bl  EffMdl_DefinePosRot
 bl  EffMdl_UseJointPos
 bl  EffMdl_UseJointPos_GroundOrientation
@@ -170,6 +174,8 @@ EffMdl_DOLAddr:
   bctr
 
 ###################################################
+.set  REG_EffectObj,29
+
 EffMdl_Particle:
 # va_list
 # Vec3 position
@@ -189,11 +195,11 @@ EffMdl_Particle:
   mulhw  r4,r4,r5
   srawi	r4,r4,6
   branchl r12,0x8039efac
+  mr REG_EffectObj, r3
   b EffMdl_Exit
 
 EffMdl_DefinePosRot:
 #EffMdl_SpawnSync(ID,gobj,vector,float)
-.set  REG_EffectObj,29
 .set  REG_EffectJObj,28
 .set  REG_ParentJObj,27
 #Pop the position off the va_list
@@ -222,10 +228,10 @@ EffMdl_DefinePosRot:
   lfs r0,0x0(r3)
   stfs  f0,0x24(REG_EffectJObj)
 #Exit
-  mr  r3,REG_EffectObj
   b EffMdl_Exit
 
 EffMdl_UseJointPos:
+#This will copy gobj's scale as well
 #EffMdl_SpawnSync(ID,gobj,vector)
 #Pop some arg off the va_list
   addi	r3, sp, 508 + 0x100
@@ -236,10 +242,23 @@ EffMdl_UseJointPos:
   mr  r3,REG_EffectID
   mr  r4,REG_PlayerGObj
   branchl r12,0x8005c814
+  mr. REG_EffectObj, r3
+  beq EffMdl_Exit
+#Get Effect JOBJ
+  lwz r3,0x4(REG_EffectObj)
+  lwz r4,0x28(r3)
+#Copy GOBJ Scale
+  lwz   r3, 0x0028 (REG_PlayerGObj)
+  lfs	  f1, 0x002C (r3)
+  stfs	f1, 0x002C (r4)
+  lfs	  f1, 0x0030 (r3)
+  stfs	f1, 0x0030 (r4)
+  lfs	  f1, 0x0034 (r3)
+  stfs	f1, 0x0034 (r4)
+
   b EffMdl_Exit
 
 EffMdl_UseJointPos_GroundOrientation:
-.set  REG_EffectObj,29
 .set  REG_EffectJObj,28
 #Pop position off the va_list
   addi	r3, sp, 508 + 0x100
@@ -265,12 +284,10 @@ EffMdl_UseJointPos_GroundOrientation:
 #Store roll rotation
   stfs	f1, 0x0024 (REG_EffectJObj)
 #Exit
-  mr  r3,REG_EffectObj
   b EffMdl_Exit
 
 EffMdl_UseJointPosRot:
 #EffMdl_SpawnSync(ID,gobj,jobj)
-.set  REG_EffectObj,29
 .set  REG_EffectJObj,28
 .set  REG_ParentJObj,27
 #Pop the jobj off the va_list
@@ -300,12 +317,11 @@ EffMdl_UseJointPosRot:
   lfs f0,0x24(REG_ParentJObj)
   stfs  f0,0x24(REG_EffectJObj)
 #Exit
-  mr  r3,REG_EffectObj
   b EffMdl_Exit
 
 EffMdl_UseJointPosFtDir:
+#This will copy gobj's scale as well
 #EffMdl_SpawnSync(ID,gobj,jobj)
-.set  REG_EffectObj,29
 .set  REG_EffectJObj,28
 .set  REG_Pos,27
 #Pop the pos off the va_list
@@ -349,10 +365,10 @@ EffMdl_UseJointPosFtDir:
   stfs	f1, 0x0034 (REG_EffectJObj)
 
 #Exit
-  mr  r3,REG_EffectObj
   b EffMdl_Exit
 
 EffMdl_FollowJointPos:
+#This will copy gobj's scale as well
 #Pop some arg off the va_list
   addi	r3, sp, 508 + 0x100
   li  r4,1
@@ -362,9 +378,11 @@ EffMdl_FollowJointPos:
   mr  r3,REG_EffectID
   mr  r4,REG_PlayerGObj
   branchl r12,0x8005c3dc
+  mr REG_EffectObj, r3
   b EffMdl_Exit
 
 EffMdl_FollowJointPosRot:
+#This will copy gobj's scale as well
 #EffMdl_SpawnSync(ID,gobj,jobj)
 #Pop the JOBJ of the va_list
   addi	r3, sp, 508 + 0x100
@@ -375,6 +393,7 @@ EffMdl_FollowJointPosRot:
   mr  r3,REG_EffectID
   mr  r4,REG_PlayerGObj
   branchl r12,0x8005c5c4 #0x8005c814
+  mr REG_EffectObj, r3
   b EffMdl_Exit
 
 /*
@@ -430,6 +449,17 @@ EffMdl_FollowJointPos_GroundOrientation:
 */
 
 EffMdl_Exit:
+# set gfx active flag (so gets removed when damaged)
+  #lbz r3,0x2219(REG_FighterData)
+  #ori r3,r3,0x80
+  #stb r3,0x2219(REG_FighterData)
+# set pause and resume gfx callbacks (freezes during hitlag)
+  load r3,0x8005BA40
+  stw r3,0x21d4(REG_FighterData)
+  load r3,0x8005BAC4
+  stw r3,0x21d8(REG_FighterData)
+# return effect object
+  mr  r3,REG_EffectObj
   restore
   mr  r31,r3
   branch  r12,0x80061d08
@@ -516,9 +546,9 @@ PtclGen_UseJointPos_Exit:
   b PtclGen_Exit
 
 PtclGen_FollowJointPos:
+# This will TRY TO copy gobj's scale as well (info commented below)
 # va_list
-# JOBJ
-
+# -JOBJ
 #Pop jobj pointer off the va_list
   addi	r3, sp, 508 + 0x100
   li  r4,1
@@ -532,12 +562,41 @@ PtclGen_FollowJointPos:
   mulhw  r4,r4,r5
   srawi	r4,r4,6
   branchl r12,0x8039efac
+  mr. REG_EffectObj,r3
+  beq PtclGen_Exit
+# Apply gobj's scale to generator
+# keep in mind this will only work if the particle commands dont outright
+# set its scale using Set Target Size
+  lwz   r3, 0x0028 (REG_PlayerGObj)
+  lfs	  f1, 0x002C (r3)
+  lfs	  f2, 0x0044 (REG_EffectObj)
+  fmuls f1,f1,f2
+  stfs	f1, 0x0044 (REG_EffectObj)
   b PtclGen_Exit
+/*
+#Create Effect
+  bp
+  mr  r3,REG_EffectID
+  branchl r12,0x8005cab0
+  mr. REG_EffectObj,r3
+  beq PtclGen_Exit
+#Get Effect JOBJ
+  lwz	r4, 0x0054 (REG_EffectObj)
+#Copy GOBJ Scale
+  lwz   r3, 0x0028 (REG_PlayerGObj)
+  lfs	  f1, 0x002C (r3)
+  stfs	f1, 0x0024 (r4)
+  lfs	  f1, 0x0030 (r3)
+  stfs	f1, 0x0028 (r4)
+  lfs	  f1, 0x0034 (r3)
+  stfs	f1, 0x002C (r4)
+  b PtclGen_Exit
+*/
 
 PtclGen_FollowJointPos_FtDir:
 # va_list
-# JOBJ
-# Facing Direction
+# -JOBJ
+# -Facing Direction
 # Create Effect
   mr  r3,REG_EffectID
   addi	r4, sp, 508 + 0x100     # va_list
@@ -545,6 +604,7 @@ PtclGen_FollowJointPos_FtDir:
   b PtclGen_Exit
 
 PtclGen_FollowJointPos_CopyGObjScale:
+# This will cause all particles created by the generator to stay on the jobj
 # va_list
 # JOBJ
 # Facing Direction
@@ -558,6 +618,27 @@ PtclGen_FollowJointPos_CopyGObjScale:
 PtclGen_UseJointPosRot:
 PtclGen_UseJointPosRot_Ground:
 PtclGen_UseJointPosFtDir:
+.set  REG_EffectPos,27
+# va_list
+# -Position Vector
+# -Facing Direction
+#Pop position vec ptr off the va_list
+  addi	r3, sp, 508 + 0x100
+  li  r4,1
+  branchl r12,0x80322620
+  lwz REG_EffectPos,0x0(r3)
+#Pop facing direction off the va_list
+  addi	r3, sp, 508 + 0x100
+  li  r4,1
+  branchl r12,0x80322620
+  lwz r3,0x0(r3)
+  lfs f1,0x0(r3)
+# Create Effect
+  mr  r3,REG_EffectID
+  mr  r4,REG_EffectPos
+  branchl r12,0x8005cb34
+  b PtclGen_Exit
+
 PtclGen_UseJointPos_FtDir_Ground:
 PtclGen_Exit:
   restore

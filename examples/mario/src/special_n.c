@@ -71,7 +71,7 @@ void SpecialN_IASACallback(GOBJ *gobj)
 	// flag0 is set by ftCmd and determines when you can interupt
 	if (script_flags->interruptable != 0)
 	{
-		Fighter_Interrupt_AllGrounded(gobj);
+		Fighter_IASACheck_AllGrounded(gobj);
 	}
 	return;
 }
@@ -138,7 +138,7 @@ void SpecialAirN_IASACallback(GOBJ *gobj)
 	// ftcmd_var.flag0 is set by ftCmd and determines when you can interupt
 	if (script_flags->interruptable != 0)
 	{
-		Fighter_Interrupt_AllAerial(gobj);
+		Fighter_IASACheck_AllAerial(gobj);
 	}
 
 	return;
@@ -266,7 +266,7 @@ void FireBallThink(GOBJ *gobj)
 		JOBJ_GetWorldPosition(fighter_data->bones[bone_index].joint, 0, &bone_position);
 
 		// create fireball item
-		int fireball_id = MEX_GetFtItemID(fighter_data->kind, MEX_ITEM_FIREBALL);
+		int fireball_id = MEX_GetFtItemID(gobj, MEX_ITEM_FIREBALL);
 		CreateFireball(fighter_data->facing_direction, gobj, &bone_position, fireball_id); //VANILLA_ITEM_FIREBALL);
 
 		// create fireball effect

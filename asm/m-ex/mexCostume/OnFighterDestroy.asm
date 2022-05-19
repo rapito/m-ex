@@ -23,15 +23,16 @@ ModelAddDescArr_Loop:
     lwzx REG_FtModelAdd,r3,r0
 
       # Free DObj lookup 
-       lwz r3,mdAdd_DOBJLookup + mdAdd_dobjarr(REG_FtModelAdd)
-       branchl r12,0x8037abc8
+       load r3,0x80459080
+       lwz r4,mdAdd_DOBJLookup + mdAdd_dobjarr(REG_FtModelAdd)
+       branchl r12,0x8037ad20
 
       # Free JObj
        lwz r3,mdAdd_JOBJ(REG_FtModelAdd)
        branchl r12,0x80371590
 
     # Free FtModelAdd
-    lwzx REG_FtModelAdd,r3,r0
+    mr r3, REG_FtModelAdd
     branchl r12,HSD_Free
 
 ModelAddDescArr_LoopAdd:

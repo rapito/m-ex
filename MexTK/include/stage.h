@@ -124,40 +124,9 @@ struct MapData
     unsigned char flag2x01 : 1;        // 0x11, 0x01
     int index;                         // 0x14, map_gobj index
     int x18;                           // 0x18
-    int x1c;                           // 0x1c
+    void *OnDestroyCB;                 // 0x1c
     int live_sfx[8];                   // 0x20, sfx ID's currently playing
-    int x40;                           // 0x40
-    int x44;                           // 0x44
-    int x48;                           // 0x48
-    int x4c;                           // 0x4c
-    int x50;                           // 0x50
-    int x54;                           // 0x54
-    int x58;                           // 0x58
-    int x5c;                           // 0x5c
-    int x60;                           // 0x60
-    int x64;                           // 0x64
-    int x68;                           // 0x68
-    int x6c;                           // 0x6c
-    int x70;                           // 0x70
-    int x74;                           // 0x74
-    int x78;                           // 0x78
-    int x7c;                           // 0x7c
-    int x80;                           // 0x80
-    int x84;                           // 0x84
-    int x88;                           // 0x88
-    int x8c;                           // 0x8c
-    int x90;                           // 0x90
-    int x94;                           // 0x94
-    int x98;                           // 0x98
-    int x9c;                           // 0x9c
-    int xa0;                           // 0xa0
-    int xa4;                           // 0xa4
-    int xa8;                           // 0xa8
-    int xac;                           // 0xac
-    int xb0;                           // 0xb0
-    int xb4;                           // 0xb4
-    int xb8;                           // 0xb8
-    int xbc;                           // 0xbc
+    ColorOverlay color;                // 0x40
     int xc0;                           // 0xc0
     u16 xc4;                           // 0xc4
     u8 xc6;                            // 0xc6
@@ -253,6 +222,50 @@ struct StageOnGO
     void *cb;
 };
 
+struct grGroundParam
+{
+    float scale;                // 0x0
+    int flags;                  // 0x4
+    u16 fov;                    // 0x8
+    int cam_distance_min;       // 0xc
+    int cam_distance_max;       // 0x10
+    int tilt_scale;             // 0x14
+    float y_rotation;           // 0x18
+    float x_rotation;           // 0x1c
+    float fixedness;            // 0x20
+    float bubble_mult;          // 0x24
+    float cam_smoothness;       // 0x28
+    u16 x2c;                    // 0x2c
+    u16 x2e;                    // 0x2e
+    int pause_min_z;            // 0x30
+    int pause_default_z;        // 0x34
+    int pause_max_z;            // 0x38
+    float pause_tilt_max_up;    // 0x3c
+    float pause_tilt_max_down;  // 0x40
+    float pause_tilt_max_left;  // 0x44
+    float pause_tilt_max_right; // 0x48
+    float x4c;                  // 0x4c
+    float cam_fixed_x;          // 0x50
+    float cam_fixed_y;          // 0x54
+    float cam_fixed_z;          // 0x58
+    float cam_fixed_fov;        // 0x5c
+    float cam_fixed_angle_y;    // 0x60
+    float cam_fixed_angle_x;    // 0x64
+    u16 x68;                    // 0x68
+    u16 item_rates[35];         // 0x6a
+    void *bgm_data;             // 0xb0
+    int bgm_num;                // 0xb4
+    int xb8;                    // 0xb8
+    int xbc;                    // 0xbc
+    int xc0;                    // 0xc0
+    int xc4;                    // 0xc4
+    int xc8;                    // 0xc8
+    int xcc;                    // 0xcc
+    int xd0;                    // 0xd0
+    int xd4;                    // 0xd4
+    int xd8;                    // 0xd8
+};
+
 struct Stage
 {
     float cambound_left;                                                  // 0x0
@@ -271,18 +284,18 @@ struct Stage
     float x38;                                                            // 0x38
     float x3c;                                                            // 0x3c
     float x40;                                                            // 0x40
-    int x44;                                                              // 0x44
-    int x48;                                                              // 0x48
-    int x4c;                                                              // 0x4c
-    int x50;                                                              // 0x50
-    int x54;                                                              // 0x54
-    int x58;                                                              // 0x58
-    int x5c;                                                              // 0x5c
-    int x60;                                                              // 0x60
-    int x64;                                                              // 0x64
-    int x68;                                                              // 0x68
-    int x6c;                                                              // 0x6c
-    int x70;                                                              // 0x70
+    float x44;                                                            // 0x44
+    float x48;                                                            // 0x48
+    float x4c;                                                            // 0x4c
+    float x50;                                                            // 0x50
+    float x54;                                                            // 0x54
+    float x58;                                                            // 0x58
+    float x5c;                                                            // 0x5c
+    float x60;                                                            // 0x60
+    float x64;                                                            // 0x64
+    float x68;                                                            // 0x68
+    float x6c;                                                            // 0x6c
+    float x70;                                                            // 0x70
     float blastzoneLeft;                                                  // 0x74
     float blastzoneRight;                                                 // 0x78
     float blastzoneTop;                                                   // 0x7c
@@ -299,11 +312,11 @@ struct Stage
     u8 x86;                                                               // 0x86
     u8 x87_80 : 1;                                                        // 0x87
     u8 is_end_temple : 1;                                                 // 0x87, 0x40
-    u8 x87_20 : 1;                                                        // 0x87
+    u8 is_end_targets : 1;                                                // 0x87, 0x20
     u8 is_end_mush : 1;                                                   // 0x87, 0x10
     u8 x87_08 : 1;                                                        // 0x87
     u8 x87_04 : 1;                                                        // 0x87
-    u8 x87_02 : 1;                                                        // 0x87
+    u8 x87_02 : 1;                                                        // 0x87, 0x02
     u8 x87_01 : 1;                                                        // 0x87
     int kind;                                                             // 0x88
     u8 flags2x80 : 1;                                                     // 0x8c
@@ -312,8 +325,8 @@ struct Stage
     u8 flags2x10 : 1;                                                     // 0x8c
     u8 flags2x08 : 1;                                                     // 0x8c
     u8 flags2x04 : 1;                                                     // 0x8c
-    u8 end_check_mush : 1;                                                // 0x8c
-    u8 end_check_temple : 1;                                              // 0x8c
+    u8 end_check_mush : 1;                                                // 0x8c, 0x02
+    u8 end_check_temple : 1;                                              // 0x8c, 0x01
     int (*OnEnterEndGame1Check)(Vec3 *f_pos, int genpoint_index);         // 0x90
     int (*OnEnterEndGame2Check)(Vec3 *f_pos, int genpoint_index);         // 0x94
     int hpsID;                                                            // 0x98
@@ -375,51 +388,57 @@ struct Stage
     int x178;                                                             // 0x178
     void (*OnShadowRender)(Vec3 *fighter_pos, int unk, JOBJ *stage_jobj); // 0x17c
     GOBJ *map_gobjs[64];
-    JOBJ *general_points[256];  // 0x280
-    int x680;                   // 0x680
-    int x684;                   // 0x684
-    int x688;                   // 0x688
-    int x68c;                   // 0x68c
-    int x690;                   // 0x690
-    int x694;                   // 0x694
-    int x698;                   // 0x698
-    int x69c;                   // 0x69c
-    int x6a0;                   // 0x6a0
-    StageOnGO *on_go;           // 0x6a4
-    int *itemData;              // 0x6a8
-    int *coll_data;             // 0x6ac
-    int *grGroundParam;         // 0x6b0
-    int *ALDYakuAll;            // 0x6b4
-    int *map_ptcl;              // 0x6b8
-    int *map_texg;              // 0x6bc
-    void *yakumono_param;       // 0x6c0
-    int *map_plit;              // 0x6c4
-    int *x6c8;                  // 0x6c8
-    void *quake_model_set;      // 0x6cc
-    int *x6d0;                  // 0x6d0
-    int targets_left;           // 0x6d4
-    int x6d8;                   // 0x6d8
-    int x6dc;                   // 0x6dc
-    int x6e0;                   // 0x6e0
-    int x6e4;                   // 0x6e4
-    int x6e8;                   // 0x6e8
-    int x6ec;                   // 0x6ec
-    int x6f0;                   // 0x6f0
-    int x6f4;                   // 0x6f4
-    int x6f8;                   // 0x6f8
-    int x6fc;                   // 0x6fc
-    int x700;                   // 0x700
-    int x704;                   // 0x704
-    int x708;                   // 0x708
-    float endgame1_boundwidth;  // 0x70c, used for mush king
-    float endgame1_boundheight; // 0x710, used for mush king
-    int endgame1_genpoint;      // 0x714, general point that ended the game, used for mush king
-    float endgame2_boundwidth;  // 0x718, used for temple
-    float endgame2_boundheight; // 0x71c, used for temple
-    int endgame2_genpoint;      // 0x720, general point that ended the gamem, used for temple
-    int x724;                   // 0x724
-    int x728;                   // 0x728
-    int x72C;                   // 0x728
+    JOBJ *general_points[256];    // 0x280
+    int x680;                     // 0x680
+    int x684;                     // 0x684
+    int x688;                     // 0x688
+    int x68c;                     // 0x68c
+    int x690;                     // 0x690
+    int x694;                     // 0x694
+    int x698;                     // 0x698
+    int x69c;                     // 0x69c
+    int x6a0;                     // 0x6a0
+    StageOnGO *on_go;             // 0x6a4
+    int *itemData;                // 0x6a8
+    int *coll_data;               // 0x6ac
+    grGroundParam *grGroundParam; // 0x6b0
+    int *ALDYakuAll;              // 0x6b4
+    int *map_ptcl;                // 0x6b8
+    int *map_texg;                // 0x6bc
+    void *yakumono_param;         // 0x6c0
+    int *map_plit;                // 0x6c4
+    int *x6c8;                    // 0x6c8
+    void *quake_model_set;        // 0x6cc
+    s16 x6d0;                     // 0x6d0
+    s16 targets_hit;              // 0x6d2
+    s16 targets_left;             // 0x6d4
+    int x6d8;                     // 0x6d8
+    int x6dc;                     // 0x6dc
+    int x6e0;                     // 0x6e0
+    int x6e4;                     // 0x6e4
+    int x6e8;                     // 0x6e8
+    int x6ec;                     // 0x6ec
+    int x6f0;                     // 0x6f0
+    int x6f4;                     // 0x6f4
+    int x6f8;                     // 0x6f8
+    int x6fc;                     // 0x6fc
+    int x700;                     // 0x700
+    int x704;                     // 0x704
+    int x708;                     // 0x708
+    float endgame1_boundwidth;    // 0x70c, used for mush king
+    float endgame1_boundheight;   // 0x710, used for mush king
+    int endgame1_genpoint;        // 0x714, general point that ended the game, used for mush king
+    float endgame2_boundwidth;    // 0x718, used for temple
+    float endgame2_boundheight;   // 0x71c, used for temple
+    int endgame2_genpoint;        // 0x720, general point that ended the gamem, used for temple
+    int x724;                     // 0x724
+    int x728;                     // 0x728
+    struct
+    {
+        GOBJ *gobj; // 0x72c, points to the map gobj
+        Vec3 pos;   // 0x730, current position of hazard
+        float x73c; // 0x73c, unk
+    } catch;
 };
 
 struct GeneralPoints
@@ -430,27 +449,53 @@ struct GeneralPoints
 
 struct GeneralPointsInfo
 {
-    JOBJ *jobj;
+    JOBJDesc *jobj_desc;
     GeneralPoints *general_point;
     int num;
 };
 
 struct MapHead
 {
-    GeneralPointsInfo *general_points_info;
-    int general_points_num;
-    void *map_gobjs; // pointer to array of map_gobjs
-    int map_gobj_num;
-    void *splines;
-    int splines_num;
-    void *lights;
-    int lights_num;
+    GeneralPointsInfo *general_points_info; // 0x0
+    int general_points_num;                 // 0x4
+    MapGObjDesc *map_gobj_desc;             // 0x8, pointer to array of map_gobj_desc's
+    int map_gobj_desc_num;                  // 0xC
+    void *splines;                          // 0x10
+    int splines_num;                        // 0x14
+    void *lights;                           // 0x18
+    int lights_num;                         // 0x1C
+    void *splines_desc;                     // 0x20
+    int splines_desc_num;                   // 0x24
+    MOBJ **mobj;                            // 0x28
+    int mobj_num;                           // 0x2c
+};
+
+struct MapCollLink
+{
+    s16 coll_group;
+    s16 unk;
+    s16 jobj_index;
+};
+
+struct MapGObjDesc
+{
+    JOBJSet jobjset;         // 0x0
+    COBJDesc *cobj;          // 0x10
+    void *x14;               // 0x14
+    void *lobj;              // 0x18
+    void *fog_desc;          // 0x1c
+    MapCollLink *coll_links; // 0x20
+    int coll_links_num;      // 0x24
+    void *x28;               // 0x28
+    void *coll_links2;       // 0x2c
+    int coll_links2_num;     // 0x30
 };
 
 struct StageFile
 {
-    ArchiveInfo *archive_info;
-    MapHead *map_head;
+    HSD_Archive *archive; //
+    MapHead *map_head;    //
+    int xc;               // is_secondary? transformations use 1 for this
 };
 
 struct GrDesc
@@ -477,13 +522,53 @@ struct GrExtLookup
     int x8;
 };
 
+struct LineHazardDesc
+{
+    int x0;
+    int dmg;
+    int angle;
+    int kb_growth;
+    int x10;
+    int kb;
+    int element;
+    int x1c;
+    int sfx;
+};
+
+struct LineRange
+{
+    struct
+    {
+        float top;
+        float bottom;
+        float left;
+        float right;
+    } unk;
+    struct
+    {
+        float top;
+        float bottom;
+        float left;
+        float right;
+    } ground;
+};
+
+struct MapItemDesc
+{
+    int index;
+    ItemDesc *desc;
+};
+
 Stage *stc_stage = 0x8049e6c8;
 int *ftchkdevice_windnum = R13 + (-0x5128);
 int *ftchkdevice_grabnum = R13 + (-0x512C);
 int *ftchkdevice_dmgnum = R13 + (-0x5130);
+int *stc_gr_ext_cur = 0x804d49e8;
+GrExtLookup *stc_gr_lookup_cur = 0x804d49ec;
+LineRange *stc_line_range = 0x80458868;
 
 /*** Functions ***/
-
+int Stage_GetRandomExternalID();
 StageFile *Stage_GetStageFiles();                 // returns an array of StageFiles
 StageFile *Stage_GetStageFile(int mapgobj_index); // returns the StageFile the ID belongs to
 void Stage_AddFtChkDevice(GOBJ *map, int hazard_kind, void *check);
@@ -491,6 +576,7 @@ void Stage_SetChkDevicePos(float y_pos);
 void Stage_GetChkDevicePos(float *y_pos, float *y_delta);
 float Stage_GetScale();
 int *Stage_GetYakumonoParam();
+void Stage_SetMapJOBJAnim(GOBJ *map, int jobj_index, int flags, int anim_id, float start_frame, float rate);
 void Stage_MapStateChange(GOBJ *map, int map_gobjID, int anim_id);
 int Stage_CheckAnimEnd(GOBJ *map, int jobj_index, int flags);  // 0x1 = unk aobj, 0x2 = material aobj, 0x4 = unk aobj
 int Stage_CheckAnimEnd2(GOBJ *map, int jobj_index, int flags); // 0x1 = unk aobj, 0x2 = material aobj, 0x4 = unk aobj
@@ -505,17 +591,18 @@ JOBJ *Stage_GetMapGObjJObj(GOBJ *mapgobj, int jointIndex);
 int Stage_GetLinesGroup(int line);
 int Stage_GetLinesUnk(int line);
 int Stage_GetLinesDirection(int line);
-void Stage_SetGroundCallback(int line, void *userdata, void *callback);
-void Stage_SetCeilingCallback(int line, void *userdata, void *callback);
+void Stage_SetGroundCallback(int group, void *userdata, void *callback);
+void Stage_ClearGroundCallback(int group);
+void Stage_SetCeilingCallback(int group, void *userdata, void *callback);
 void Stage_InitMovingColl(JOBJ *mapjoint, int mapgobjID);
 void Stage_UpdateMovingColl(GOBJ *mapgobj);
 void Stage_GetSpawnPosition(int spawn_id, Vec3 *pos);
 Particle *Stage_SpawnEffectPos(int gfxID, int efFileID, Vec3 *pos);
 Particle *Stage_SpawnEffectJointPos(int gfxID, int efFileID, JOBJ *pos);
 Particle *Stage_SpawnEffectJointPos2(int gfxID, int efFileID, JOBJ *pos);
-int GrColl_RaycastGround(Vec3 *coll_pos, int *line_index, int *line_kind, Vec3 *unk1, Vec3 *unk2, Vec3 *unk3, Vec3 *unk4, void *cb, float fromX, float fromY, float toX, float toY, float unk5); // make unk5
-int GrColl_RaycastGround2(Vec3 *coll_pos, int *line_index, int *line_kind, void *unk, void *cb, void *unk2, float fromX, float fromY, float toX, float toY);                                     // unk = 0, unk2 = -1;
-int GrColl_RaycastWall(Vec3 *coll_pos, int *line_index, int *line_kind, void *unk, void *cb, void *unk2, float fromX, float fromY, float toX, float toY);
+int GrColl_RaycastGround(Vec3 *coll_pos, int *line_index, int *line_kind, Vec3 *unk1, Vec3 *unk2, Vec3 *unk3, Vec3 *unk4, void *cb, float from_x, float from_y, float to_x, float to_y, float unk5); // make unk5
+int GrColl_RaycastUnk(Vec3 *coll_pos, int *line_index, int *line_kind, void *unk, void *cb, void *unk2, float from_x, float from_y, float to_x, float to_y);                                         // unk = 0, unk2 = -1;
+int GrColl_RaycastAll(Vec3 *coll_pos, int *line_index, int *line_kind, void *unk, void *cb, void *unk2, float from_x, float from_y, float to_x, float to_y);
 GOBJ *Zako_Create(int item_id, Vec3 *pos, JOBJ *jobj, Vec3 *velocity, int isMovingItem);
 GOBJ *Stage_CreateMapItem(MapData *map_data, int takeDamageSFXKind, int state, JOBJ *joint, Vec3 *pos, int unk_bool, void *onGiveDamage, void *onTakeDamage); // this function creates an item of id 0xA0, its a generic ID used across multiple stages. its mainly used for giving a joint a hurtbox/hitbox and an onTakeDamage callback.
 int Stage_CheckForNearbyFighters(Vec3 *pos, float radius);
@@ -530,11 +617,16 @@ float Stage_GetCameraBottom();
 int Stage_GetGeneralPoint(int index, Vec3 *pos);
 void Stage_EnableLineGroup(int index);
 void Stage_DisableLineGroup(int index);
+void Stage_AutoLinkLineGroups();
 void Stage_LinkLineGroups(int group1, int group2);
 void Stage_InitLines(void *coll_data);
 void Stage_InitCatchHazard(GOBJ *map, int unk, void *check_cb);
 void Stage_InitMoveHazard(GOBJ *map, int unk, void *check_cb);
 void Stage_InitDamageHazard(GOBJ *map, int unk, void *check_cb);
+void Stage_InitLineHazardDescUnk(void *unk, LineHazardDesc *hazard_desc); // 0x80008d30
+void Stage_InitColAnim(JOBJ *map_jobj);
+void Stage_ApplyColAnim(GOBJ *map, ColAnimDesc *colanim);
+void Stage_DisableColAnim(GOBJ *map);
 int Stage_GetExternalID();
 int Stage_ExternalToInternal(int ext_id);
 #endif

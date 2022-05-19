@@ -63,6 +63,78 @@ enum ItemID
     ITEM_KIRBYCUTTER,
     ITEM_KIRBYHAMMER,
     ITEM_KIRBYABILITYSTAR,
+    ITEM_53,
+    ITEM_FOXLASER,
+    ITEM_FALCOLASER,
+    ITEM_FOXILLUSION,
+    ITEM_FALCOPHANTASM,
+    ITEM_LINKBOMB,
+    ITEM_CLINKBOMB,
+    ITEM_LINKBOOMERANG,
+    ITEM_CLINKBOOMERANG,
+    ITEM_LINKHOOKSHOT,
+    ITEM_CLINKHOOKSHOT,
+    ITEM_LINKARROW,
+    ITEM_CLINKARROW,
+    ITEM_NESSPKFIRE,
+    ITEM_NESSPKFLASH1,
+    ITEM_NESSPKFLASH2,
+    ITEM_NESSPKTHUNDER,
+    ITEM_NESSPKTHUNDER1,
+    ITEM_NESSPKTHUNDER2,
+    ITEM_NESSPKTHUNDER3,
+    ITEM_NESSPKTHUNDER4,
+    ITEM_FOXGUN,
+    ITEM_FALCOGUN,
+    ITEM_LINKBOW,
+    ITEM_CLINKBOW,
+    ITEM_PKFLASHEXPLODE,
+    ITEM_SHEIKNEEDLETHROWN,
+    ITEM_SHEIKNEEDLEHELD,
+    ITEM_PIKACHUTHUNDER,
+    ITEM_PICHUTHUNDER,
+    ITEM_MARIOCAPE,
+    ITEM_DRMARIOCAPE,
+    ITEM_SHEIKSMOKE,
+    ITEM_YOSHIEGGTHROWN,
+    ITEM_87,
+    ITEM_YOSHISTAR,
+    ITEM_89,
+    ITEM_90,
+    ITEM_91,
+    ITEM_92,
+    ITEM_SAMUSBOMB,
+    ITEM_SAMUSCHARGESHOT,
+    ITEM_SAMUSMISSILE,
+    ITEM_SAMUSGRAPPLE,
+    ITEM_SHEIKCHAIN,
+    ITEM_PEACHBOMBER,
+    ITEM_PEACHTURNIP,
+    ITEM_BOWSERFLAME,
+    ITEM_NESSBAT,
+    ITEM_NESSYOYO,
+    ITEM_PEACHPARASOL,
+    ITEM_PEACHTOAD,
+    ITEM_LUIGIFIRE,
+    ITEM_ICECLIMBERICE,
+    ITEM_ICECLIMBERBLIZZARD,
+    ITEM_ZELDAFIRE,
+    ITEM_ZELDAFIREEXPLODE,
+    ITEM_110,
+    ITEM_PEACHTOADSPORE,
+    ITEM_MEWTWOSHADOWBALL,
+    ITEM_ICECLIMBERROPE,
+    ITEM_GAWPESTICIDE,
+    ITEM_GAWMANHOLE,
+    ITEM_GAWFIRE,
+    ITEM_GAWPARACHUTE,
+    ITEM_GAWTURTLE,
+    ITEM_GAWSPERKY,
+    ITEM_GAWJUDGE,
+    ITEM_119,
+    ITEM_GAWSAUSAGE,
+    ITEM_CLINKMILK,
+    ITEM_GAWFIREFIGHTER,
 
     // pokemon
     ITEM_POKERANDOM = 160,
@@ -349,54 +421,61 @@ struct SpawnItem
 
 struct itHit
 {
-    int active;                   // 0x0
-    int x4;                       // 0x4, depends on
-    int dmg;                      // 0x8, projected damage
-    float dmg_f;                  // 0xc, staled damage, actually applied
-    Vec3 offset;                  // 0x10
-    float size;                   // 0x1c
-    int angle;                    // 0x20
-    int kb_growth;                // 0x24
-    int wdsk;                     // 0x28
-    int kb;                       // 0x2c
-    int attribute;                // 0x30
-    int shield_dmg;               // 0x34
-    int hitsound_severity;        // 0x38. hurtbox interaction. 0 = none, 1 = grounded, 2 = aerial, 3 = both
-    int hitsound_kind;            // 0x3c
-    unsigned char x401 : 1;       // 0x40 0x80
-    unsigned char x402 : 1;       // 0x40 0x40
-    unsigned char hit_air : 1;    // 0x40 0x20. bool to check against aerial fighters
-    unsigned char hit_ground : 1; // 0x40 0x10. bool to check against grounded fighters
-    unsigned char x405 : 1;       // 0x40 0x08
-    unsigned char x406 : 1;       // 0x40 0x04
-    unsigned char x407 : 1;       // 0x40 0x02
-    unsigned char x408 : 1;       // 0x40 0x01
-    char x41;                     // 0x41
-    unsigned char x421 : 1;       // 0x42 0x80
-    unsigned char x422 : 1;       // 0x42 0x40
-    unsigned char hit_facing : 1; // 0x42 0x20. bool to only hit fighters facing the item
-    unsigned char x424 : 1;       // 0x42 0x10
-    unsigned char no_hurt : 1;    // 0x42 0x08      ignore hurtbox
-    unsigned char no_reflect : 1; // 0x42 0x04      ignore reflect?
-    unsigned char x427 : 1;       // 0x42 0x02
-    unsigned char x428 : 1;       // 0x42 0x01
-    unsigned char x431 : 1;       // 0x43 0x80
-    unsigned char x432 : 1;       // 0x43 0x40
-    unsigned char hit_all : 1;    // 0x43 0x20
-    unsigned char x434 : 1;       // 0x43 0x10
-    unsigned char x435 : 1;       // 0x43 0x08
-    unsigned char x436 : 1;       // 0x43 0x04
-    unsigned char x437 : 1;       // 0x43 0x02
-    unsigned char x438 : 1;       // 0x43 0x01
-    int x44;                      // 0x44
-    JOBJ *bone;                   // 0x48
-    Vec3 pos;                     // 0x4c
-    Vec3 pos_prev;                // 0x58
-    Vec3 pos_coll;                // 0x64   position of hurt collision
-    float coll_distance;          // 0x70   Distance From Collding Hurtbox (Used for phantom hit collision calculation)
-    HitVictim victims[24];        // 0x74
-    int x134;                     // 0x134
-    int x138;                     // 0x138
+    int active;                               // 0x0
+    int x4;                                   // 0x4, depends on
+    int dmg;                                  // 0x8, projected damage
+    float dmg_f;                              // 0xc, staled damage, actually applied
+    Vec3 offset;                              // 0x10
+    float size;                               // 0x1c
+    int angle;                                // 0x20
+    int kb_growth;                            // 0x24
+    int wdsk;                                 // 0x28
+    int kb;                                   // 0x2c
+    int attribute;                            // 0x30
+    int shield_dmg;                           // 0x34
+    int hitsound_severity;                    // 0x38. hurtbox interaction. 0 = none, 1 = grounded, 2 = aerial, 3 = both
+    int hitsound_kind;                        // 0x3c
+    unsigned char x401 : 1;                   // 0x40 0x80
+    unsigned char x402 : 1;                   // 0x40 0x40
+    unsigned char hit_air : 1;                // 0x40 0x20. bool to check against aerial fighters
+    unsigned char hit_ground : 1;             // 0x40 0x10. bool to check against grounded fighters
+    unsigned char x405 : 1;                   // 0x40 0x08
+    unsigned char x406 : 1;                   // 0x40 0x04
+    unsigned char x407 : 1;                   // 0x40 0x02
+    unsigned char x408 : 1;                   // 0x40 0x01
+    unsigned char x41_80 : 1;                 // 0x41 0x80
+    unsigned char x41_40 : 1;                 // 0x41 0x40
+    unsigned char x41_20 : 1;                 // 0x41 0x20
+    unsigned char x41_10 : 1;                 // 0x41 0x10
+    unsigned char timed_rehit_on_item : 1;    // 0x41 0x08
+    unsigned char timed_rehit_on_fighter : 1; // 0x41 0x04
+    unsigned char timed_rehit_on_shield : 1;  // 0x41 0x02
+    unsigned char can_reflect : 1;            // 0x41 0x01
+    unsigned char can_absorb : 1;             // 0x42 0x80
+    unsigned char x42_40 : 1;                 // 0x42 0x40
+    unsigned char hit_facing : 1;             // 0x42 0x20. bool to only hit fighters facing the item
+    unsigned char can_deflect : 1;            // 0x42 0x10
+    unsigned char unk_reflect : 1;            // 0x42 0x08     ignore reflect?
+    unsigned char no_hurt : 1;                // 0x42 0x04     ignore hurtbox
+    unsigned char ignore_ungrab_hurtbox : 1;  // 0x42 0x02
+    unsigned char x42_01 : 1;                 // 0x42 0x01
+    unsigned char hit_item : 1;               // 0x43 0x80
+    unsigned char x432 : 1;                   // 0x43 0x40
+    unsigned char hit_all : 1;                // 0x43 0x20
+    unsigned char x434 : 1;                   // 0x43 0x10
+    unsigned char x435 : 1;                   // 0x43 0x08
+    unsigned char x436 : 1;                   // 0x43 0x04
+    unsigned char x437 : 1;                   // 0x43 0x02
+    unsigned char x438 : 1;                   // 0x43 0x01
+    int x44;                                  // 0x44
+    JOBJ *bone;                               // 0x48
+    Vec3 pos;                                 // 0x4c
+    Vec3 pos_prev;                            // 0x58
+    Vec3 pos_coll;                            // 0x64   position of hurt collision
+    float coll_distance;                      // 0x70   Distance From Collding Hurtbox (Used for phantom hit collision calculation)
+    HitVictim victims[24];                    // 0x74
+    int x134;                                 // 0x134
+    int x138;                                 // 0x138
 };
 
 struct ItHurt
@@ -556,7 +635,7 @@ struct ItemData
     float ecb_left;                                     // 0xc28
     int xc2c;                                           // 0xc2c
     int xc30;                                           // 0xc30
-    struct                                              // 0xc9c
+    struct                                              // dmg, 0xc9c
     {                                                   //
         int dealt;                                      // 0xc34, rounded down
         int xc38;                                       // 0xc38
@@ -592,7 +671,7 @@ struct ItemData
         int source_ply;                                 // 0xcb0, damage source ply number
         int xcb4;                                       // 0xcb4
         float givedmg_direction;                        // 0xcb8, updated @ 80078184
-        int xcbc;                                       // 0xcbc
+        float hitlag_frames;                            // 0xcbc, hitlag frames remaining
         int xcc0;                                       // 0xcc0
         int xcc4;                                       // 0xcc4
         float kb;                                       // 0xcc8
@@ -605,13 +684,13 @@ struct ItemData
         float xce4;                                     // 0xce4
         float xce8;                                     // 0xce8
         GOBJ *source_fighter;                           // 0xcec
-        GOBJ *source_item;                              // 0xcf0
+        GOBJ *source_item;                              // 0xcf0, is a fighter gobj, but is the owner of the fighter that hit the item
     } dmg;                                              //
     GOBJ *fighter_unk;                                  // 0xcf4, fighter that hit or got hit by this item? idk what to call this
     GOBJ *detected_fighter;                             // 0xcf8, fighter that touched the items detect box. updated @ 800798d4
     int xcfc;                                           // 0xcfc
     GOBJ *grabbed_fighter;                              // 0xd00
-    int xd04;                                           // 0xd04
+    GOBJ *attacker_item;                                // 0xd04
     int xd08;                                           // 0xd08
     GOBJ *xd0c;                                         // 0xd0c
     int xd10;                                           // 0xd10
@@ -622,8 +701,8 @@ struct ItemData
         void (*coll)(GOBJ *item);                       // 0xd1c
         void (*accessory)(GOBJ *item);                  // 0xd20
         void (*on_detect)(GOBJ *item);                  // 0xd24
-        void *xd28;                                     // 0xd28
-        void *xd2c;                                     // 0xd2c
+        void (*on_enter_hitlag)(GOBJ *item);            // 0xd28, runs after applying hitlag in damage apply proc 8026a62c
+        void (*on_exit_hitlag)(GOBJ *item);             // 0xd2c, runs after exiting hitlag in hitlag update proc 8026a200
         void *jumped_on;                                // 0xd30, runs when the item is "jumped on", 80269bac
         void (*grabFt_onIt)(GOBJ *item);                // 0xd34, when grabbing a fighter, run this function on self
         void (*grabFt_onFt)(GOBJ *fighter, GOBJ *item); // 0xd38, when grabbing a fighter, run this function on fighter
@@ -652,19 +731,36 @@ struct ItemData
     int xd90;                                           // 0xd90
     int xd94;                                           // 0xd94
     int xd98;                                           // 0xd98
-    int xd9c;                                           // 0xd9c
+    float xd9c;                                         // 0xd9c
     int xda0;                                           // 0xda0
-    int xda4;                                           // 0xda4
+    unsigned char xda4_80 : 1;                          // 0xda4, 0x80
+    unsigned char xda4_40 : 1;                          // 0xda4, 0x40
+    unsigned char xda4_20 : 1;                          // 0xda4, 0x20
+    unsigned char xda4_10 : 1;                          // 0xda4, 0x10
+    unsigned char xda4_08 : 1;                          // 0xda4, 0x08
+    unsigned char xda4_04 : 1;                          // 0xda4, 0x04
+    unsigned char xda4_02 : 1;                          // 0xda4, 0x02
+    unsigned char xda4_01 : 1;                          // 0xda4, 0x01
+    unsigned char xda5_80 : 1;                          // 0xda5, 0x80
+    unsigned char xda5_40 : 1;                          // 0xda5, 0x40
+    unsigned char xda5_20 : 1;                          // 0xda5, 0x20
+    unsigned char xda5_10 : 1;                          // 0xda5, 0x10
+    unsigned char xda5_08 : 1;                          // 0xda5, 0x08
+    unsigned char xda5_04 : 1;                          // 0xda5, 0x04
+    unsigned char xda5_02 : 1;                          // 0xda5, 0x02
+    unsigned char xda5_01 : 1;                          // 0xda5, 0x01
+    char xda6;                                          // 0xda6
+    char xda7;                                          // 0xda7
     char xda8;                                          // 0xda8
-    char xda9;                                          // 0xda8
-    unsigned char xdaa1 : 1;                            // 0x80 - 0xda8
-    unsigned char show_center_sphere : 1;               // 0x40 - 0xda8
-    unsigned char show_item_pickup : 1;                 // 0x20 - 0xda8
-    unsigned char show_footstool : 1;                   // 0x10 - 0xda8
-    unsigned char xda8_x8 : 1;                          // 0x8 - 0xda8
-    unsigned char show_dynamics : 1;                    // 0x4 - 0xda8
-    unsigned char show_hit : 1;                         // 0x2 - 0xda8
-    unsigned char show_model : 1;                       // 0x1 - 0xda8
+    char xda9;                                          // 0xda9
+    unsigned char xdaa1 : 1;                            // 0x80 - 0xdaa
+    unsigned char show_center_sphere : 1;               // 0x40 - 0xdaa
+    unsigned char show_item_pickup : 1;                 // 0x20 - 0xdaa
+    unsigned char show_footstool : 1;                   // 0x10 - 0xdaa
+    unsigned char xda8_x8 : 1;                          // 0x8 - 0xdaa
+    unsigned char show_dynamics : 1;                    // 0x4 - 0xdaa
+    unsigned char show_hit : 1;                         // 0x2 - 0xdaa
+    unsigned char show_model : 1;                       // 0x1 - 0xdaa
     char xdab;                                          // 0xdab
     struct                                              //
     {                                                   //
@@ -678,7 +774,7 @@ struct ItemData
     int xdc4;                                           // 0xdc4
     u8 xdc8 : 8;                                        // 0xdc8
     u8 xdc9_1 : 1;                                      // 0xdc9, 0x80
-    u8 hitlag : 1;                                      // 0xdc9, 0x40
+    u8 is_hitlag : 1;                                   // 0xdc9, 0x40
     u8 freeze : 1;                                      // 0xdc9, 0x20
     u8 xdc9_10 : 1;                                     // 0xdc9, 0x10
     u8 xdc9_f : 4;                                      // 0xdc9, 0xF
@@ -722,7 +818,7 @@ struct ItemData
     unsigned char xdcf4 : 1;                            // 0xdcf, 0x10
     unsigned char xdcf5 : 1;                            // 0xdcf, 0x08
     unsigned char xdcf6 : 1;                            // 0xdcf, 0x04
-    unsigned char xdcf7 : 1;                            // 0xdcf, 0x02
+    unsigned char is_hurt_by_fighter : 1;               // 0xdcf, 0x02, metal box checks this to make sure it was hit directly by a fighter and not their item
     unsigned char xdcf8 : 1;                            // 0xdcf, 0x01
     unsigned char is_footstool : 1;                     // 0xdd0, 0x80
     unsigned char xdd0_x40 : 1;                         // 0xdd0, 0x40
@@ -860,11 +956,11 @@ struct ItemData
         int xfc0;                                       // 0xfc0
         int xfc4;                                       // 0xfc4
         int xfc8;                                       // 0xfc8
-        struct                                          //
-        {                                               //
-            GOBJ *fighter_orig;                         // 0xfcc
-        } MEX;                                          //
     } item_var;                                         //
+    struct                                              //
+    {                                                   //
+        GOBJ *fighter_orig;                             // 0xfcc
+    } MEX;
 };
 
 /*** static reference ***/
@@ -873,10 +969,10 @@ itPublicData **stc_itPublicData = (R13 + -0x4978);
 ItemDesc **stc_itdesc_enemies = (R13 + -0x4968);
 
 /*** Functions ***/
-
+void Item_IndexStageItem(ItemDesc *item_desc, int index);
 void Item_Hold(GOBJ *item, GOBJ *fighter, int boneID);
 void Item_Catch(GOBJ *fighter, int unk);
-void Items_StoreItemDataToCharItemTable(int articleData, int articleID);
+void Item_StoreItemDataToCharItemTable(int articleData, int articleID);
 void Items_StoreTimeout(GOBJ *item, float timeout);
 GOBJ *Item_CreateItem(SpawnItem *item_spawn); // sorry for confusion, use this one for best results
 GOBJ *Item_CreateItem1(SpawnItem *item_spawn);
@@ -926,8 +1022,13 @@ void Item_SetUngrabbable(GOBJ *item);
 void Item_SetJobjHidden(GOBJ *item);
 void Item_SetHitboxDamage(itHit *hitbox, int damage, GOBJ *item);
 void Item_RemoveAllHitboxes(GOBJ *item);
+void Item_SetHurtboxTangibility(GOBJ *item, int tangibility);
+void Item_CreateHurtbox(GOBJ *item, float x1, float y1, float z1, float x2, float y2, float z2, float size);
+void Item_UpdateHurtboxes(GOBJ *item);
+void Item_UpdateAnimationAndScriptTimers(GOBJ *item);
 void Item_ClearVelocity(GOBJ *item);
 void Item_UpdateECBTopN(GOBJ *item);
 int Item_GetWallCollFlags(GOBJ *item);
 void Item_UpdateHitboxDamage(itHit *hit, int dmg, GOBJ *item);
+GOBJ *Item_GiveOwnershipToAttacker(GOBJ *item);
 #endif
